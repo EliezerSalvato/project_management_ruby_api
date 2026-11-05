@@ -1,0 +1,14 @@
+bearerAuth:
+  type: http
+  scheme: bearer
+  bearerFormat: signed session token
+  description: |
+    Session token returned in the JSON body by `POST /api/v1/user/authentications`
+    or `PATCH /api/v1/user/session/refreshes`.
+
+    The refresh token is **not** a Bearer credential — it is an encrypted httpOnly cookie
+    named `refresh_token`, used only by `PATCH /api/v1/user/session/refreshes`.
+
+    ```http
+    Authorization: Bearer <token>
+    ```
