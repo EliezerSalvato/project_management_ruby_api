@@ -15,8 +15,12 @@ gem "ransack", "~> 6.0"
 gem "rack-cors", "~> 3.0"
 gem "rack-attack", "~> 6.8"
 
+# I18n
+gem "rails-i18n", "~> 8.1"
+
 group :development do
   gem "rubocop-rails-omakase", "~> 1.1", require: false
+  gem "i18n-tasks", "~> 1.1"
 end
 
 group :test do

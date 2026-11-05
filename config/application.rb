@@ -41,6 +41,13 @@ module ProjectManagementRubyApi
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    # Locale selection and the refresh token both use cookies.
+    config.middleware.use ActionDispatch::Cookies
+
+    config.i18n.available_locales = %i[en pt-BR]
+    config.i18n.default_locale = :en
+    config.i18n.fallbacks = true
+
     config.generators do |g|
       g.orm :active_record, primary_key_type: :uuid
     end
