@@ -43,6 +43,7 @@ module ProjectManagementRubyApi
 
     # Locale selection and the refresh token both use cookies.
     config.middleware.use ActionDispatch::Cookies
+    config.middleware.use Rack::Attack
 
     config.i18n.available_locales = %i[en pt-BR]
     config.i18n.default_locale = :en
