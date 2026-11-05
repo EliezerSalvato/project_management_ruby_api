@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "skills": {
+    "tlc-spec-driven": {
+      "name": "tlc-spec-driven",
+      "source": "local",
+      "contentHash": "e8c2380a57817ef2406da1977668a39ba7721bdcb5c430fb87f2f82d6b34ae18",
+      "installedAt": "2026-11-05T17:37:36.620Z",
+      "updatedAt": "2026-11-05T17:38:07.058Z",
+      "agents": [
+        "claude-code",
+        "cursor"
+      ],
+      "method": "copy",
+      "global": false
+    }
+  }
+}
