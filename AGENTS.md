@@ -78,18 +78,19 @@ Avoid overengineering. Do not invent `app/services/`, policy gems, or fat Active
 
 ## Layer map
 
-Mirror the `User` context for new bounded contexts. Table models live at `app/models/` with flattened class names. Processes, domain constants, and serializers stay under `app/models/<context>/`.
+Mirror the `User` context for new bounded contexts. Table models live at `app/models/` with flattened class names. Form objects, domain constants, and serializers stay under `app/models/<context>/`.
 
 | Layer | Location | Examples |
 |-------|----------|----------|
 | Persistence | `app/models/*.rb` | `User`, `UserSession`, `UserEmailConfirmation`, `UserPasswordReset` |
-| Use cases (processes) | `app/models/<context>/` | `User::Registration`, `User::Email::Confirmation` |
+| Use cases (forms) | `app/models/<context>/` | `User::Registration`, `User::Email::Confirmation` |
+| Form base | `app/models/application_form.rb` | `ApplicationForm` |
 | Domain constants | `app/models/<context>/` | `User::Email`, `User::Password`, `User::Token` |
 | Serializers | `app/models/<context>/serializer.rb` | `User::Serializer` |
 | Mailers | `app/mailers/` | `UserMailer` |
 | HTTP | `app/controllers/api/v1/<context>/` | thin controllers only |
 
-Do **not** reintroduce `app/models/core/`, `ApplicationSolidProcess`, `*::Record`, mappers, entities, repository interfaces, adapters, `Solid::Context` facades, or `app/services/`.
+Do **not** introduce `app/services/`, `app/models/core/`, `*::Record`, mappers, entities, repository interfaces, adapters, `Solid::Process`, or `paper_trail`.
 
 ---
 
@@ -105,7 +106,7 @@ Allowed:
 
 - params / strong params
 - authentication (`authenticate_user!` / `skip_before_action`)
-- request orchestration (call process, pattern-match result)
+- request orchestration (build a form, branch on `save`)
 - response rendering (via `API::V1::BaseController` helpers)
 - session cookie helpers (`set_refresh_token_as_cookie`)
 
@@ -116,11 +117,21 @@ Forbidden:
 - complex conditionals
 - inventing an authorization/policy layer unless explicitly requested (this app uses authentication only today)
 
-Call processes with a leading `::` (e.g. `::User::Registration.call(...)`) so `User` never collides with the `API::V1::User` controller namespace if the file uses nested `module`/`class` definitions. Pattern-match on `Solid::Success` / `Solid::Failure(input:)` / `else`.
+Use a compact class name (`class API::V1::User::RegistrationsController`). Build the form, then branch on `save`:
 
-Protected actions pass the authenticated record as `user: current_user`. Public session-creating actions merge `request_metadata` (`ip_address`, `user_agent`). Refresh reads `cookies.encrypted[:refresh_token]`.
+```ruby
+registration = User::Registration.new(registration_params)
 
-Reference: `API::V1::User::RegistrationsController`, `API::V1::User::ProfilesController`.
+if registration.save
+  render_json_with_success(status: :created, message: I18n.t("user.registration.success"), data: { user: User::Serializer.new(registration.user) })
+else
+  render_json_with_model_errors(registration)
+end
+```
+
+Protected actions merge `user: current_user` into the form attributes. Public session-creating actions merge `request_metadata` (`ip_address`, `user_agent`). Refresh reads `cookies.encrypted["refresh_token"]` and, on success, calls `set_refresh_token_as_cookie`. Session revoke calls `current_user.sessions.active.revoke_all` and renders success. It has no form.
+
+Reference: `API::V1::User::RegistrationsController`, `API::V1::User::ProfilesController`, `API::V1::User::Session::RevokesController`.
 
 ---
 
@@ -130,37 +141,35 @@ Reference: `API::V1::User::RegistrationsController`, `API::V1::User::ProfilesCon
 - Public endpoints use `skip_before_action :authenticate_user!`.
 - `current_user` is `User.find_signed(bearer_token, purpose: :session_token)` and must be `active?`.
 - Clients send the session token as `Authorization: Bearer <token>`.
-- Refresh token is an encrypted HTTP-only cookie (`cookies.encrypted[:refresh_token]`), set via `set_refresh_token_as_cookie` when the process returns one.
-- Pass `request_metadata` (`ip_address`, `user_agent`) into processes that create sessions (`User::Authentication`).
+- Refresh token is an encrypted HTTP-only cookie (`cookies.encrypted[:refresh_token]`), set via `set_refresh_token_as_cookie` when the form exposes `refresh_token`.
+- Pass `request_metadata` (`ip_address`, `user_agent`) into forms that create sessions (`User::Authentication`).
 
 ---
 
-### Business logic (solid-process)
+### Business logic (form objects)
 
-Complex business logic belongs in `Solid::Process` subclasses under `app/models/<context>/`.
+Complex business logic belongs in `ApplicationForm` subclasses under `app/models/<context>/`.
 
 Pattern:
 
-- Process: `User::Registration < Solid::Process`
-- Controller: `::User::Registration.call(params)`
-- Name processes after the use case (`Registration`, `Authentication`, `Change`, `Confirmation`, `Reset`, `Update`, `Refresh`, `Revoke`, `Deletion`, `SendInstructions`). Table models stay flattened (`UserEmailConfirmation`, `UserPasswordReset`) so they do not collide with processes (`User::Email::Confirmation`, `User::Password::Reset`)
+- Form: `User::Registration < ApplicationForm`
+- Controller: `User::Registration.new(params)` then `save`
+- Name forms after the use case (`Registration`, `Authentication`, `Change`, `Confirmation`, `Reset`, `Update`, `Refresh`, `Deletion`, `SendInstructions`). Table models stay flattened (`UserEmailConfirmation`, `UserPasswordReset`) so they do not collide with forms (`User::Email::Confirmation`, `User::Password::Reset`)
 
-Processes must:
+Forms must:
 
 - have a single responsibility
-- declare `input`; declare `deps` only when injecting (`mailer`, default `UserMailer`)
-- be deterministic and testable
-- talk to Active Record directly (`User.create`, `user.sessions.create!`, `user.update`)
-- orchestrate with `Given`, `.and_then`, `Continue()`, `Failure()`, `rollback_on_failure`
-- use `.and_expose(:event_name, %i[keys])` when the controller needs named success values
-- keep `deliver_later` **outside** `rollback_on_failure` so mail is not sent if the transaction rolls back
-- on business/validation failure: `input.errors.add(...)` then `Failure(:type, input:)`. Use `:invalid_input` when merging AR errors (`input.errors.merge!(user.errors)`); use a specific type for domain rules (`:invalid_token`, `:user_is_not_active`, `:email_not_found`, …)
-- on persistence that can fail validation (`User.create`, `user.update`): check success, merge errors, `Failure(:invalid_input, input:)`
+- declare `attribute` for input; use `attr_accessor` for records and values the controller reads back (`user`, `token`, `refresh_token`)
+- normalize in `before_validation`; validate with ActiveModel
+- implement `persist` inside the transaction opened by `save`
+- on a domain rule: `errors.add(:attribute, :key)` then `halt!` (`:invalid_token`, `:user_is_not_active`, `:not_found`, …)
+- on persistence that can fail validation (`User.create`, `user.update`): check success, `import_errors(record)`, `halt!`
 - on persistence that must not fail (child records, tokens): bang methods (`create!` / `update!`); `rescue_from StandardError` handles infrastructure errors
-- validate a persisted user with `instance_of: User, is: :persisted?` (solid-process validators)
-- add Input error translations under `activemodel.errors.models.<process/path>/input` in `config/locales/<context>/`
+- put `deliver_later` in `after_persist`, which runs only after the transaction commits
+- authenticated flows take `user` via `attr_accessor` and `validates :user, presence: true`
+- add error translations under `activemodel.errors.models.<form/path>.attributes` in `config/locales/<context>/`
 
-Canonical reference: `User::Registration`. Other shapes: `User::Authentication` (session + `.and_expose`), `User::Email::Change` (`deps` + mail outside rollback), `User::Profile::Update` (authenticated `user:`).
+Canonical reference: `User::Registration`. Other shapes: `User::Authentication` (session tokens), `User::Email::Change` (mail in `after_persist`), `User::Profile::Update` (authenticated `user`).
 
 ---
 
@@ -172,13 +181,13 @@ Prefer:
 
 - Active Record classes at `app/models/` with flattened names matching the table (`User`, `UserSession`, `UserEmailConfirmation`, `UserPasswordReset`)
 - `has_many` associations on the parent with `class_name:` when the association name does not match the class (`has_many :sessions, class_name: "UserSession"`)
-- thin Records: associations (`dependent:`), `has_secure_password`, `generates_token_for`, `has_paper_trail`, scopes, and small persistence helpers (`UserSession.revoke_all`)
+- thin Records: associations (`dependent:`), `has_secure_password`, `generates_token_for`, scopes, and small persistence helpers (`UserSession.revoke_all`)
 - modules for domain constants (`User::Email`, `User::Password`, `User::Token`)
-- solid-process for use cases, under `app/models/<context>/`
+- `ApplicationForm` for use cases, under `app/models/<context>/`
 
-Keep validations and normalization that belong to the use case on the process `input`, not on the Record, unless they are pure persistence constraints.
+Keep validations and normalization that belong to the use case on the form, not on the Record, unless they are pure persistence constraints.
 
-Avoid callbacks unless necessary. Never bury side effects (mail, tokens, orchestration) in Records — put them in processes.
+Avoid callbacks unless necessary. Never bury side effects (mail, tokens, orchestration) in Records — put them in forms.
 
 ---
 
@@ -194,8 +203,8 @@ Always:
 
 - version APIs (`/api/v1`)
 - when exposing collections, paginate with Pagy (gem is available; no in-app usage pattern yet — follow Pagy docs and keep the response envelope)
-- use serializers (`jsonapi-serializer`, e.g. `User::Serializer`) wrapping Active Record from the process result (`data: { user: User::Serializer.new(user) }`)
-- use I18n for controller messages under `config/locales/<context>/` (`user.registration.success`), process Input errors under `activemodel.errors.models`, and mailer subjects under `config/locales/<context>/mailer.*.yml`
+- use serializers (`jsonapi-serializer`, e.g. `User::Serializer`) wrapping Active Record from the form (`data: { user: User::Serializer.new(user) }`)
+- use I18n for controller messages under `config/locales/<context>/` (`user.registration.success`), form errors under `activemodel.errors.models.<form/path>.attributes`, and mailer subjects under `config/locales/<context>/mailer.*.yml`
 - keep OpenAPI docs in sync: add/update path files under `public/openapi/paths/`, wire them in `public/openapi/spec.yml`, update `components/` when needed (Redoc UI at `/docs`)
 - return proper HTTP status codes
 - keep response consistency (`render_json_with_success` / `render_json_with_error` / `render_json_with_model_errors`)
@@ -211,9 +220,9 @@ Prefer the existing style:
 - **FactoryBot** factories under `spec/factories/<context>/`, with `class:` matching the flattened Active Record class (`:user`, `:user_session`, `:user_email_confirmation`, `:user_password_reset`)
 - Thin **model specs** only when persistence behavior needs unit coverage (`spec/models/user_spec.rb`, `spec/models/user_session_spec.rb`)
 - Reuse helpers in `spec/support/` (`AuthHelpers`) and shared examples (`an unauthorized API request`)
-- Keep process Input error keys covered (`spec/models/user/error_messages_spec.rb`) when adding `errors.add`
+- Keep form error keys covered (`spec/models/user/error_messages_spec.rb`) when adding `errors.add`
 
-Do not invent process/unit specs as the primary coverage. Mirror an existing request spec when adding an endpoint.
+Do not invent form unit specs as the primary coverage. Mirror an existing request spec when adding an endpoint.
 
 ---
 

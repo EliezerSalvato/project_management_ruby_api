@@ -1,5 +1,5 @@
 ---
-description: Persistence patterns for flattened Active Record models and migrations. Use when working with table models (not solid-process use cases).
+description: Persistence patterns for flattened Active Record models and migrations. Use when working with table models (not ApplicationForm use cases).
 globs:
   - app/models/*.rb
   - db/migrate/**/*.rb
@@ -10,7 +10,7 @@ alwaysApply: false
 
 This project does **not** use fat `ApplicationRecord` domain models or `app/services/`.
 
-Persistence lives in flattened Active Record classes at `app/models/` (`User`, `UserSession`, `UserEmailConfirmation`, `UserPasswordReset`). Domain orchestration lives in `Solid::Process` subclasses under `app/models/<context>/` (e.g. `User::Registration`). See `AGENTS.md` for the full layer map.
+Persistence lives in flattened Active Record classes at `app/models/` (`User`, `UserSession`, `UserEmailConfirmation`, `UserPasswordReset`). Domain orchestration lives in `ApplicationForm` subclasses under `app/models/<context>/` (e.g. `User::Registration`). See `AGENTS.md` for the full layer map.
 
 Do not introduce `*::Record`, mappers, entities, repository interfaces, or adapters. Do not nest table models (`User::Session`).
 
@@ -23,7 +23,6 @@ class User < ApplicationRecord
   has_many :password_resets, class_name: "UserPasswordReset", dependent: :destroy
 
   has_secure_password
-  has_paper_trail skip: [ :password_digest ]
 
   generates_token_for :email_confirmation, expires_in: User::Email::CONFIRMATION_TOKEN_EXPIRES_IN do
     [ email, verified ]
@@ -44,11 +43,11 @@ end
 Rules:
 
 - Name persistence classes after the table (`User`, `UserSession`, `UserEmailConfirmation`), not nested namespaces (`User::Session`) and not `*::Record`.
-- Place table models at `app/models/` (`user.rb`, `user_session.rb`, `user_email_confirmation.rb`). Nested paths under `app/models/<context>/` are processes, domain modules, or serializers.
+- Place table models at `app/models/` (`user.rb`, `user_session.rb`, `user_email_confirmation.rb`). Nested paths under `app/models/<context>/` are forms, domain modules, or serializers.
 - On the parent, declare `class_name:` when the association name does not match the class.
 - Always declare `dependent:` on associations that own child records.
-- Keep Records thin: associations, `has_secure_password`, `generates_token_for`, `has_paper_trail`, scopes, and small persistence helpers (`revoke_all`).
-- Do **not** put use-case orchestration, mail delivery, or multi-step workflows in Records — use solid-process.
+- Keep Records thin: associations, `has_secure_password`, `generates_token_for`, scopes, and small persistence helpers (`revoke_all`).
+- Do **not** put use-case orchestration, mail delivery, or multi-step workflows in Records — use an `ApplicationForm`.
 
 ## Associations & queries
 
@@ -75,7 +74,7 @@ class User < ApplicationRecord
   after_create :send_welcome_email
 end
 
-# Prefer — explicit orchestration in a solid-process (see User::Registration)
+# Prefer — explicit orchestration in a form (see User::Registration)
 ```
 
 ## Migrations
@@ -97,7 +96,7 @@ class CreateUsers < ActiveRecord::Migration[8.1]
 end
 ```
 
-- Prefer UUID primary keys (project standard via `pgcrypto`).
+- Prefer UUID primary keys (`id: :uuid`). The PostgreSQL adapter default is `uuidv7()` from `config/initializers/uuid_v7_default.rb`. `pgcrypto` is enabled for the database.
 - Add `null:` and sensible `default:` constraints at the DB level.
 - Add indexes for columns used in `where` / `order` / joins and unique business keys.
 - In data migrations, prefer `find_each`; `update_column(s)` skips validations, callbacks, and timestamps — use deliberately.

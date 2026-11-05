@@ -1,0 +1,81 @@
+---
+description: ApplicationForm use cases, domain constants, and serializers under app/models/<context>/.
+globs:
+  - app/models/application_form.rb
+  - app/models/*/**/*.rb
+alwaysApply: false
+---
+
+# Form Patterns
+
+Nested files under `app/models/<context>/` are **not** table models. They are form objects, domain constant modules, or serializers. Flattened Active Record stays at `app/models/*.rb` (`User`, `UserSession`).
+
+Do not introduce `app/services/`, `*::Record`, mappers, entities, adapters, `Solid::Process`, or `paper_trail`.
+
+## Forms
+
+```ruby
+class User::Registration < ApplicationForm
+  attribute :email, :string
+  attribute :password, :string
+
+  attr_accessor :user, :token
+
+  before_validation :normalize_email
+
+  validates :email, :password, presence: true
+
+  private
+
+  def normalize_email
+    self.email = email.to_s.strip.downcase
+  end
+
+  def persist
+    self.user = User.create(email:, password:)
+
+    unless user.persisted?
+      import_errors(user)
+      halt!
+    end
+  end
+
+  def after_persist
+    UserMailer.with(email: user.email, token:).email_verification.deliver_later
+  end
+end
+```
+
+- Name after the use case. Keep table models flattened so they do not collide (`UserEmailConfirmation` vs `User::Email::Confirmation`).
+- `save` validates, runs `persist` in a transaction, and calls `after_persist` only when the transaction commits.
+- `halt!` rolls the transaction back. `import_errors(record)` copies Active Record errors onto the form.
+- Talk to Active Record directly. `create` / `update` when validation can fail. `create!` / `update!` for child records that must not fail.
+- On a domain failure: `errors.add(:attribute, :key)` then `halt!`.
+- Put `deliver_later` in `after_persist`.
+- Authenticated flows take `user` with `attr_accessor` and `validates :user, presence: true`.
+- Add error keys under `activemodel.errors.models.<form/path>.attributes`.
+
+Canonical: `User::Registration`. Also see `User::Authentication`, `User::Email::Change`, `User::Profile::Update`.
+
+## Domain constants
+
+```ruby
+module User::Email
+  FORMAT = URI::MailTo::EMAIL_REGEXP
+  CONFIRMATION_TOKEN_EXPIRES_IN = 24.hours
+end
+```
+
+Modules for formats, expirations, and token helpers (`User::Token.generate` / `.digest`). Not Active Record.
+
+## Serializers
+
+```ruby
+class User::Serializer
+  include JSONAPI::Serializer
+
+  attributes :id, :first_name, :last_name, :email
+end
+```
+
+Wrap the Active Record from the form in the controller: `User::Serializer.new(user)`.
