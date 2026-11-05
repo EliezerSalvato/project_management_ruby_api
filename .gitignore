@@ -7,8 +7,10 @@
 # Ignore bundler config.
 /.bundle
 
-# Ignore all environment files.
-/.env*
+# Ignore local environment files. Keep the example tracked.
+/.env
+/.env.*
+!/.env.example
 # Local Compose overrides. The tracked sample is docker-compose.sample.yml.
 /docker-compose.yml
 

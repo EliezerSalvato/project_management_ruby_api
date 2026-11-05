@@ -28,6 +28,7 @@ group :test do
 end
 
 group :development, :test do
+  gem "dotenv-rails", "~> 3.2"
   gem "brakeman", "~> 8.1", require: false
   gem "bundler-audit", "~> 0.9", require: false
   gem "debug", "~> 1.11", platforms: %i[mri windows], require: "debug/prelude"
