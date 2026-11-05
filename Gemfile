@@ -25,10 +25,13 @@ end
 
 group :test do
   gem "simplecov", "~> 1.3", require: false
+  gem "rspec-rails", "~> 8.0"
 end
 
 group :development, :test do
   gem "dotenv-rails", "~> 3.2"
+  gem "factory_bot_rails", "~> 6.5"
+  gem "faker", "~> 3.8"
   gem "brakeman", "~> 8.1", require: false
   gem "bundler-audit", "~> 0.9", require: false
   gem "debug", "~> 1.11", platforms: %i[mri windows], require: "debug/prelude"
