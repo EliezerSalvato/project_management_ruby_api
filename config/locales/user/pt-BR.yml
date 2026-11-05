@@ -1,0 +1,88 @@
+---
+pt-BR:
+  activemodel:
+    errors:
+      models:
+        user/authentication:
+          attributes:
+            base:
+              invalid_email_or_password: E-mail ou senha inválidos
+              user_email_is_not_verified: E-mail do usuário não verificado
+              user_is_not_active: Usuário não está ativo
+        user/email/change:
+          attributes:
+            base:
+              new_email_is_the_same_as_the_current_email: O novo e-mail é igual ao e-mail atual
+            new_email:
+              taken: já está em uso
+        user/email/confirmation:
+          attributes:
+            base:
+              email_taken: E-mail já está em uso
+              invalid_token: Token inválido
+        user/password/change:
+          attributes:
+            current_password:
+              invalid: é inválida
+            password:
+              same_as_current_password: é igual à senha atual
+        user/password/reset:
+          attributes:
+            base:
+              invalid_token: Token inválido
+              user_email_is_not_verified: E-mail do usuário não verificado
+              user_is_not_active: Usuário não está ativo
+            password:
+              same_as_current_password: é igual à senha atual
+        user/password/reset/send_instructions:
+          attributes:
+            base:
+              user_email_is_not_verified: E-mail do usuário não verificado
+              user_is_not_active: Usuário não está ativo
+            email:
+              not_found: não encontrado
+        user/session/refresh:
+          attributes:
+            base:
+              invalid_refresh_token: Refresh token inválido
+              user_is_not_active: Usuário não está ativo
+  user:
+    account:
+      deletion:
+        failure: Falha ao excluir a conta
+        success: Conta excluída com sucesso
+    authentication:
+      failure: Falha na autenticação
+    email:
+      change:
+        failure: Falha ao alterar o e-mail
+        success: Solicitação de confirmação de e-mail enviada
+      confirmation:
+        failure: Falha na confirmação do e-mail
+        success: E-mail confirmado com sucesso
+    errors:
+      internal_server_error: Erro interno do servidor
+      unauthorized: Não autorizado
+    password:
+      change:
+        failure: Falha ao alterar a senha
+        success: Senha alterada com sucesso
+      reset:
+        failure: Falha ao redefinir a senha
+        success: Senha redefinida com sucesso
+      reset_instructions:
+        failure: Falha ao enviar as instruções de redefinição de senha
+        success: Instruções de redefinição de senha enviadas com sucesso
+    profile:
+      update:
+        failure: Falha ao atualizar o perfil
+        success: Perfil atualizado com sucesso
+    registration:
+      failure: Falha no registro
+      success: Registro realizado com sucesso, por favor, verifique seu e-mail para confirmar sua conta
+    session:
+      refresh:
+        failure: Falha ao renovar a sessão
+      revoke:
+        failure: Falha ao revogar a sessão
+        success: Sessão revogada com sucesso

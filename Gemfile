@@ -18,6 +18,9 @@ gem "rack-attack", "~> 6.8"
 # I18n
 gem "rails-i18n", "~> 8.1"
 
+# Auth / security
+gem "bcrypt", "~> 3.1"
+
 group :development do
   gem "rubocop-rails-omakase", "~> 1.1", require: false
   gem "i18n-tasks", "~> 1.1"

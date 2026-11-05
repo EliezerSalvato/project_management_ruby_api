@@ -1,7 +1,9 @@
 post:
   tags: [User]
   summary: Confirm email
-  description: Confirms the user email with the token received by email. Public endpoint.
+  description: |
+    Confirms the user email with the token received by email.
+    For an email change, applies the new address. Revokes active sessions. Public endpoint.
   operationId: confirmEmail
   requestBody:
     required: true

@@ -9,9 +9,6 @@ AuthenticationRequest:
       type: string
       format: password
       minLength: 8
-    remember_me:
-      type: boolean
-      description: When true, the refresh cookie gets a 30-day Expires and the server-side refresh lasts 30 days. When false/omitted, the cookie is a browser session cookie and the server-side refresh lasts 1 day.
 
 RegistrationRequest:
   type: object
@@ -34,10 +31,10 @@ RegistrationRequest:
 
 RefreshSessionRequest:
   type: object
+  required: [refresh_token]
   properties:
-    remember_me:
-      type: boolean
-      description: Optional. Controls the lifetime of the rotated refresh cookie (same rules as sign-in).
+    refresh_token:
+      type: string
 
 ProfileUpdateRequest:
   type: object
@@ -113,11 +110,14 @@ PasswordResetUpdateRequest:
 
 TokensData:
   type: object
-  required: [token, user]
+  required: [token, refresh_token, user]
   properties:
     token:
       type: string
       description: Session token (Bearer). Expires in 15 minutes.
+    refresh_token:
+      type: string
+      description: Refresh token. Expires in 30 days. Used to obtain a new session token.
     user:
       $ref: "#/UserResource"
 

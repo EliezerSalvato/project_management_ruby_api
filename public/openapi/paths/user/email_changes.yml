@@ -2,8 +2,9 @@ patch:
   tags: [User]
   summary: Change email
   description: |
-    Changes the email of the authenticated user.
-    Requires the current password. Marks the user as unverified and sends a new confirmation email.
+    Requests an email change for the authenticated user.
+    Requires the current password. Keeps the current email until the new address is confirmed
+    and sends a confirmation email to the new address.
   operationId: changeEmail
   security:
     - bearerAuth: []

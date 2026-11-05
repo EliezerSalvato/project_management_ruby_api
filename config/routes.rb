@@ -6,6 +6,29 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
   get "docs" => redirect("/docs/index.html")
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  namespace :api do
+    namespace :v1 do
+      namespace :user do
+        resource :registrations, only: %i[create]
+        resource :authentications, only: %i[create]
+        resource :accounts, only: %i[destroy]
+        resource :profiles, only: %i[update]
+
+        namespace :email do
+          resource :confirmations, only: %i[create]
+          resource :changes, only: %i[update]
+        end
+
+        namespace :password do
+          resource :changes, only: %i[update]
+          resource :resets, only: %i[create update]
+        end
+
+        namespace :session do
+          resource :refreshes, only: %i[update]
+          resource :revokes, only: %i[destroy]
+        end
+      end
+    end
+  end
 end
