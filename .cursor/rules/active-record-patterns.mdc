@@ -3,6 +3,9 @@ description: Persistence patterns for flattened Active Record models and migrati
 globs:
   - app/models/*.rb
   - db/migrate/**/*.rb
+paths:
+  - "app/models/*.rb"
+  - "db/migrate/**/*.rb"
 alwaysApply: false
 ---
 

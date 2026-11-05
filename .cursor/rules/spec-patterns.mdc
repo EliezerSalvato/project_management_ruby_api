@@ -5,6 +5,11 @@ globs:
   - spec/factories/**/*.rb
   - spec/models/**/*.rb
   - spec/support/**/*.rb
+paths:
+  - "spec/requests/**/*.rb"
+  - "spec/factories/**/*.rb"
+  - "spec/models/**/*.rb"
+  - "spec/support/**/*.rb"
 alwaysApply: false
 ---
 

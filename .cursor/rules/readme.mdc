@@ -1,6 +1,8 @@
 ---
 description: README conventions
 globs: README.md
+paths:
+  - "README.md"
 alwaysApply: false
 ---
 

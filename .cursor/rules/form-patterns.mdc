@@ -3,6 +3,9 @@ description: ApplicationForm use cases, domain constants, and serializers under 
 globs:
   - app/models/application_form.rb
   - app/models/*/**/*.rb
+paths:
+  - "app/models/application_form.rb"
+  - "app/models/*/**/*.rb"
 alwaysApply: false
 ---
 

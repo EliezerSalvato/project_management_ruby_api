@@ -1,0 +1,1 @@
+../../.cursor/rules/controller-patterns.mdc

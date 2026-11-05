@@ -1,0 +1,1 @@
+../../.cursor/rules/form-patterns.mdc

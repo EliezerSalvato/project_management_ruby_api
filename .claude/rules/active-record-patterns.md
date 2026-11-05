@@ -1,0 +1,1 @@
+../../.cursor/rules/active-record-patterns.mdc

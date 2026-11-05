@@ -1,6 +1,8 @@
 ---
 description: Thin API controllers that build an ApplicationForm and render the shared JSON envelope.
 globs: app/controllers/**/*.rb
+paths:
+  - "app/controllers/**/*.rb"
 alwaysApply: false
 ---
 
