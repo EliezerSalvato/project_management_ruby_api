@@ -49,40 +49,27 @@ en:
   user:
     account:
       deletion:
-        failure: Account deletion failed
         success: Account deleted successfully
-    authentication:
-      failure: Authentication failed
     email:
       change:
-        failure: Email change failed
         success: Email confirmation request sent
       confirmation:
-        failure: Email confirmation failed
         success: Email confirmed successfully
     errors:
       internal_server_error: Internal Server Error
       unauthorized: Unauthorized
     password:
       change:
-        failure: Password change failed
         success: Password changed successfully
       reset:
-        failure: Password reset failed
         success: Password reset successfully
       reset_instructions:
-        failure: Password reset instructions failed
         success: Password reset instructions sent successfully
     profile:
       update:
-        failure: Profile update failed
         success: Profile updated successfully
     registration:
-      failure: Registration failed
       success: Registration successful, please check your email to confirm your account
     session:
-      refresh:
-        failure: Session refresh failed
       revoke:
-        failure: Session revocation failed
         success: Session revoked successfully

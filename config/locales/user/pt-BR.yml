@@ -49,40 +49,27 @@ pt-BR:
   user:
     account:
       deletion:
-        failure: Falha ao excluir a conta
         success: Conta excluída com sucesso
-    authentication:
-      failure: Falha na autenticação
     email:
       change:
-        failure: Falha ao alterar o e-mail
         success: Solicitação de confirmação de e-mail enviada
       confirmation:
-        failure: Falha na confirmação do e-mail
         success: E-mail confirmado com sucesso
     errors:
       internal_server_error: Erro interno do servidor
       unauthorized: Não autorizado
     password:
       change:
-        failure: Falha ao alterar a senha
         success: Senha alterada com sucesso
       reset:
-        failure: Falha ao redefinir a senha
         success: Senha redefinida com sucesso
       reset_instructions:
-        failure: Falha ao enviar as instruções de redefinição de senha
         success: Instruções de redefinição de senha enviadas com sucesso
     profile:
       update:
-        failure: Falha ao atualizar o perfil
         success: Perfil atualizado com sucesso
     registration:
-      failure: Falha no registro
       success: Registro realizado com sucesso, por favor, verifique seu e-mail para confirmar sua conta
     session:
-      refresh:
-        failure: Falha ao renovar a sessão
       revoke:
-        failure: Falha ao revogar a sessão
         success: Sessão revogada com sucesso
