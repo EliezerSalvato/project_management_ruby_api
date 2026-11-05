@@ -1,0 +1,43 @@
+---
+description: Thin API controllers that call Solid::Process and render the shared JSON envelope.
+globs: app/controllers/**/*.rb
+alwaysApply: false
+---
+
+# Controller Patterns
+
+Controllers stay thin: strong params, auth, call a process, render. No business logic or SQL.
+
+Use compact class names (`class API::V1::User::RegistrationsController`) and a leading `::` when calling processes so `User` never collides with `API::V1::User`.
+
+```ruby
+class API::V1::User::RegistrationsController < API::V1::BaseController
+  skip_before_action :authenticate_user!
+
+  def create
+    case ::User::Registration.call(permitted_params)
+    in Solid::Success(user:)
+      render_json_with_success(status: :created, message: I18n.t("user.registration.success"), data: { user: ::User::Serializer.new(user) })
+    in Solid::Failure(input:)
+      render_json_with_model_errors(input)
+    else
+      render_json_with_error(status: :unprocessable_content, message: I18n.t("user.registration.failure"))
+    end
+  end
+
+  private
+
+  def permitted_params
+    params.permit(:first_name, :last_name, :email, :password, :password_confirmation)
+  end
+end
+```
+
+- Public endpoints: `skip_before_action :authenticate_user!`.
+- Protected endpoints: inherit `authenticate_user!` and pass `user: current_user`.
+- Session create: merge `request_metadata` (`ip_address`, `user_agent`) into params.
+- Refresh: read `cookies.encrypted[:refresh_token]`; on success call `set_refresh_token_as_cookie`.
+- Match `Solid::Failure(input:)` regardless of failure type; `else` is the unexpected fallback.
+- Render via `render_json_with_success` / `render_json_with_error` / `render_json_with_model_errors` only.
+
+Reference: `API::V1::User::RegistrationsController` (public), `API::V1::User::ProfilesController` (authenticated).

@@ -1,0 +1,35 @@
+---
+description: Request specs, factories, and thin model specs. Use when adding or changing tests.
+globs:
+  - spec/requests/**/*.rb
+  - spec/factories/**/*.rb
+  - spec/models/**/*.rb
+  - spec/support/**/*.rb
+alwaysApply: false
+---
+
+# Spec Patterns
+
+Request specs are the primary coverage. Do not add process/unit specs as the default for a new use case.
+
+## Request specs
+
+Mirror `spec/requests/api/v1/user/registrations_spec.rb` (public) or `spec/requests/api/v1/user/profiles_spec.rb` (authenticated).
+
+- `type: :request`, JSON (`as: :json`), assert HTTP status and `response.parsed_body`.
+- Authenticated examples use `auth_headers_for(user)` from `AuthHelpers`.
+- Protected endpoints include `it_behaves_like "an unauthorized API request"` for missing, invalid, expired, and wrong-purpose tokens.
+- Assert side effects on flattened records (`change(User, :count)`, `have_enqueued_mail(UserMailer, :email_verification)`).
+
+## Factories
+
+Under `spec/factories/<context>/`, with `class:` matching the flattened Active Record class:
+
+- `:user` → `User` (traits `:verified`, `:inactive`)
+- `:user_session` → `UserSession` (transient `refresh_token`, trait `:expired`)
+- `:user_email_confirmation` → `UserEmailConfirmation`
+- `:user_password_reset` → `UserPasswordReset`
+
+## Model specs
+
+Thin persistence-only specs named after the table class (`spec/models/user_spec.rb`, `spec/models/user_session_spec.rb`). When adding `input.errors.add`, keep keys covered in `spec/models/user/error_messages_spec.rb`.

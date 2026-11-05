@@ -1,0 +1,113 @@
+---
+description: Persistence patterns for flattened Active Record models and migrations. Use when working with table models (not solid-process use cases).
+globs:
+  - app/models/*.rb
+  - db/migrate/**/*.rb
+alwaysApply: false
+---
+
+# Active Record Patterns
+
+This project does **not** use fat `ApplicationRecord` domain models or `app/services/`.
+
+Persistence lives in flattened Active Record classes at `app/models/` (`User`, `UserSession`, `UserEmailConfirmation`, `UserPasswordReset`). Domain orchestration lives in `Solid::Process` subclasses under `app/models/<context>/` (e.g. `User::Registration`). See `AGENTS.md` for the full layer map.
+
+Do not introduce `*::Record`, mappers, entities, repository interfaces, or adapters. Do not nest table models (`User::Session`).
+
+## Records
+
+```ruby
+class User < ApplicationRecord
+  has_many :sessions, class_name: "UserSession", dependent: :destroy
+  has_many :email_confirmations, class_name: "UserEmailConfirmation", dependent: :destroy
+  has_many :password_resets, class_name: "UserPasswordReset", dependent: :destroy
+
+  has_secure_password
+  has_paper_trail skip: [ :password_digest ]
+
+  generates_token_for :email_confirmation, expires_in: User::Email::CONFIRMATION_TOKEN_EXPIRES_IN do
+    [ email, verified ]
+  end
+end
+
+class UserSession < ApplicationRecord
+  belongs_to :user
+
+  scope :active, -> { where(refresh_token_expires_at: Time.current..) }
+
+  def self.revoke_all
+    update_all(refresh_token_expires_at: 1.second.ago)
+  end
+end
+```
+
+Rules:
+
+- Name persistence classes after the table (`User`, `UserSession`, `UserEmailConfirmation`), not nested namespaces (`User::Session`) and not `*::Record`.
+- Place table models at `app/models/` (`user.rb`, `user_session.rb`, `user_email_confirmation.rb`). Nested paths under `app/models/<context>/` are processes, domain modules, or serializers.
+- On the parent, declare `class_name:` when the association name does not match the class.
+- Always declare `dependent:` on associations that own child records.
+- Keep Records thin: associations, `has_secure_password`, `generates_token_for`, `has_paper_trail`, scopes, and small persistence helpers (`revoke_all`).
+- Do **not** put use-case orchestration, mail delivery, or multi-step workflows in Records — use solid-process.
+
+## Associations & queries
+
+- Use scopes on Records for simple, reusable filters (`active`, `pending`, `not_expired`).
+- Prevent N+1 with `includes` / `preload` / `eager_load` when reading associations.
+- Use `joins` when filtering without loading associated records.
+- Prefer `find_each` for large batches.
+
+```ruby
+# Bad — N+1
+User.all.each { |user| user.sessions.count }
+
+# Good
+User.includes(:sessions)
+```
+
+## Callbacks
+
+Avoid callbacks for business logic and side effects.
+
+```ruby
+# Avoid — side effect buried in the Record
+class User < ApplicationRecord
+  after_create :send_welcome_email
+end
+
+# Prefer — explicit orchestration in a solid-process (see User::Registration)
+```
+
+## Migrations
+
+```ruby
+class CreateUsers < ActiveRecord::Migration[8.1]
+  def change
+    create_table :users, id: :uuid do |t|
+      t.string :first_name, null: false
+      t.string :last_name, null: false
+      t.string :email, null: false, index: { unique: true }
+      t.string :password_digest, null: false
+      t.boolean :verified, null: false, default: false
+      t.boolean :active, null: false, default: true
+
+      t.timestamps
+    end
+  end
+end
+```
+
+- Prefer UUID primary keys (project standard via `pgcrypto`).
+- Add `null:` and sensible `default:` constraints at the DB level.
+- Add indexes for columns used in `where` / `order` / joins and unique business keys.
+- In data migrations, prefer `find_each`; `update_column(s)` skips validations, callbacks, and timestamps — use deliberately.
+
+## Concerns
+
+Use only for genuinely shared, cohesive persistence behavior — not as a dumping ground for domain logic.
+
+## Performance
+
+- Add DB indexes for frequently queried columns.
+- Use `select` to limit columns; `pluck` instead of `map` for single attributes.
+- Use `find_each` for large datasets.
