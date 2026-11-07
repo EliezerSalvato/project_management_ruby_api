@@ -4,13 +4,17 @@ class API::V1::BaseController < ApplicationController
   rescue_from StandardError do |exception|
     Rails.error.report(exception, source: "api/v1")
 
-    message = Rails.env.production? ? I18n.t("user.errors.internal_server_error") : exception.message
+    message = Rails.env.production? ? I18n.t("api.errors.internal_server_error") : exception.message
 
     render_json_with_error(status: :internal_server_error, message:)
   end
 
   rescue_from ActionController::ParameterMissing do |exception|
     render_json_with_error(status: :bad_request, message: exception.message)
+  end
+
+  rescue_from ActiveRecord::RecordNotFound do
+    render_json_with_error(status: :not_found, message: I18n.t("api.errors.not_found"))
   end
 
   protected

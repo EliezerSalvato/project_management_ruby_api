@@ -1,0 +1,6 @@
+---
+pt-BR:
+  api:
+    errors:
+      internal_server_error: Erro interno do servidor
+      not_found: Não encontrado

@@ -56,7 +56,6 @@ en:
       confirmation:
         success: Email confirmed successfully
     errors:
-      internal_server_error: Internal Server Error
       unauthorized: Unauthorized
     password:
       change:

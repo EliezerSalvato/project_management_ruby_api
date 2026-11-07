@@ -56,7 +56,6 @@ pt-BR:
       confirmation:
         success: E-mail confirmado com sucesso
     errors:
-      internal_server_error: Erro interno do servidor
       unauthorized: Não autorizado
     password:
       change:
