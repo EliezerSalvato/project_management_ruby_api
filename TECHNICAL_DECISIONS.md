@@ -26,11 +26,18 @@ Diferente do UUID v4, são ordenáveis por tempo, o que mantém a boa performanc
 Serialização rápida e declarativa dos recursos, seguindo a especificação JSON:API.
 Mantém o formato das respostas consistente e separa a apresentação dos models.
 
-### Pagy
-Paginação leve e rápida, com baixo consumo de memória quando comparada a alternativas como Kaminari e will_paginate.
+### Paginação por cursor (keyset)
+A listagem de projetos é paginada por cursor (parâmetro `after` e `next_cursor` na resposta), 20 itens por página, sem gems de paginação.
+Diferente da paginação por `OFFSET`, a performance não cai nas páginas mais distantes e os itens não se repetem nem somem quando projetos são criados ou removidos entre uma página e outra.
 
-### Ransack
-Filtros e ordenação de coleções a partir de parâmetros da requisição, sem precisar escrever queries manualmente para cada combinação.
+### Ordenação
+As ordenações disponíveis ficam em uma lista fechada em `Project::Sort` (`name`, `recent_start`, `nearest_deadline`), e o cliente não consegue ordenar por colunas arbitrárias.
+Cada ordenação define as expressões que geram o `ORDER BY` e a comparação do cursor, o que mantém as duas sempre iguais. O `id` é o último critério de desempate, então a ordem é sempre determinística.
+Nas ordenações por data, projetos atrasados vão para o final, e a data de referência ("hoje") usa o fuso horário do projeto (`America/Sao_Paulo`).
+
+### Busca
+A busca procura o termo tanto no nome do projeto quanto no nome do cliente. Usa `ILIKE` com a extensão `unaccent` do PostgreSQL, que ignora maiúsculas, minúsculas e acentos (buscar "joao" encontra "João").
+Para o MVP atual a busca resolve bem, sem depender de serviços externos. Se o volume de dados crescer ou surgir a necessidade de busca por relevância ou tolerância a erros de digitação, será preciso avaliar alternativas como o Elasticsearch.
 
 ### rack-cors
 Configura o CORS para que o front-end (em outro domínio/porta) consuma a API de forma segura, permitindo apenas as origens configuradas.
@@ -41,6 +48,7 @@ Rate limiting por IP, com limite mais rígido no endpoint de login. Protege cont
 ### OpenAPI + Redoc
 A documentação da API fica em `public/openapi/` (especificação OpenAPI) e é exibida via Redoc em `/docs`.
 Isso deixa um contrato claro para quem consome a API e facilita a integração com o front-end.
+A documentação existe em dois idiomas, inglês e português (`public/openapi/pt-BR/`), com um seletor de idioma no Redoc. As duas versões têm os mesmos arquivos e a mesma estrutura, mudando só o texto.
 
 ## Autenticação e segurança
 
@@ -65,6 +73,10 @@ As regras de negócio ficam em form objects nomeados pelo caso de uso (`User::Re
 
 ### Controllers finos e versionamento (`/api/v1`)
 Controllers só orquestram a requisição e a resposta. O versionamento permite evoluir a API sem quebrar clientes existentes.
+
+### Desenvolvimento orientado a especificação (SDD)
+As funcionalidades são desenvolvidas com Spec-Driven Development usando a skill `tlc-spec-driven`, uma das skills de SDD mais completas da atualidade e sempre atualizada com as melhores práticas do momento.
+Antes do código, cada funcionalidade passa por especificação com requisitos testáveis, design, tarefas atômicas e, no final, uma verificação de cada critério de aceite com o teste que o comprova. Os artefatos ficam em `.specs/features/` (por exemplo, `.specs/features/projects/`).
 
 ## Internacionalização
 
