@@ -1,0 +1,78 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+
+get:
+  tags: [Projetos]
+  summary: Exibir um projeto
+  operationId: showProject
+  security:
+    - bearerAuth: []
+  responses:
+    "200":
+      description: Projeto
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/ProjectSuccessResponse"
+    "401":
+      $ref: "../../components/responses.yml#/Unauthorized"
+    "404":
+      $ref: "../../components/responses.yml#/NotFound"
+
+patch:
+  tags: [Projetos]
+  summary: Atualizar um projeto
+  description: |
+    Atualiza apenas os campos enviados. Uma data só é comparada com hoje quando a requisição a altera.
+    Uma nova `cover_image` substitui a anterior. `remove_cover_image=true` a remove; `cover_image_url` passa a ser null.
+  operationId: updateProject
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          $ref: "../../components/schemas.yml#/ProjectUpdateRequest"
+      application/json:
+        schema:
+          $ref: "../../components/schemas.yml#/ProjectUpdateRequest"
+        example:
+          name: Mobile App
+  responses:
+    "200":
+      description: Projeto atualizado
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/ProjectSuccessResponse"
+    "401":
+      $ref: "../../components/responses.yml#/Unauthorized"
+    "404":
+      $ref: "../../components/responses.yml#/NotFound"
+    "422":
+      $ref: "../../components/responses.yml#/UnprocessableContent"
+
+delete:
+  tags: [Projetos]
+  summary: Excluir um projeto
+  description: Exclui o projeto e sua imagem de capa permanentemente.
+  operationId: deleteProject
+  security:
+    - bearerAuth: []
+  responses:
+    "200":
+      description: Projeto excluído
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/MessageSuccessResponse"
+    "401":
+      $ref: "../../components/responses.yml#/Unauthorized"
+    "404":
+      $ref: "../../components/responses.yml#/NotFound"

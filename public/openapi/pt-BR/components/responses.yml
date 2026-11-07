@@ -1,0 +1,34 @@
+UnprocessableContent:
+  description: Falha de validação ou de regra de negócio
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yml#/ErrorResponse"
+      example:
+        status: error
+        message: "E-mail já está em uso"
+        details:
+          email:
+            - já está em uso
+
+Unauthorized:
+  description: Token Bearer ausente ou inválido
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yml#/ErrorResponse"
+      example:
+        status: error
+        message: Não autorizado
+        details: {}
+
+NotFound:
+  description: Recurso não encontrado, ou pertencente a outro usuário
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yml#/ErrorResponse"
+      example:
+        status: error
+        message: Não encontrado
+        details: {}

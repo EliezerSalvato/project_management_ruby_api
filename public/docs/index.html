@@ -1,13 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <title>API Docs</title>
+    <style>
+      body { margin: 0; }
+
+      .language-switch {
+        position: fixed;
+        top: 12px;
+        right: 16px;
+        z-index: 1000;
+        display: flex;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        font: 600 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+
+      .language-switch button {
+        padding: 8px 12px;
+        border: 0;
+        background: transparent;
+        color: #32329f;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .language-switch button + button { border-left: 1px solid #d0d7de; }
+
+      .language-switch button[aria-pressed="true"] {
+        background: #32329f;
+        color: #fff;
+        cursor: default;
+      }
+    </style>
   </head>
   <body>
-    <redoc spec-url="/openapi/spec.yml?v=1.0.0"></redoc>
-    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+    <div class="language-switch" role="group" aria-label="Language">
+      <button type="button" data-locale="en">English</button>
+      <button type="button" data-locale="pt-BR">Português</button>
+    </div>
+
+    <div id="redoc-container"></div>
+
+    <script src="https://cdn.redoc.ly/redoc/v2.5.0/bundles/redoc.standalone.js"></script>
+    <script>
+      (function () {
+        var SPEC_VERSION = "1.0.21";
+        var STORAGE_KEY = "docs-locale";
+        var SPECS = {
+          "en": "/openapi/spec.yml",
+          "pt-BR": "/openapi/pt-BR/spec.yml"
+        };
+        var TITLES = { "en": "API Docs", "pt-BR": "Documentação da API" };
+
+        var container = document.getElementById("redoc-container");
+        var buttons = document.querySelectorAll(".language-switch button");
+
+        function initialLocale() {
+          var fromQuery = new URLSearchParams(window.location.search).get("lang");
+          if (SPECS[fromQuery]) return fromQuery;
+
+          var stored = window.localStorage.getItem(STORAGE_KEY);
+          if (SPECS[stored]) return stored;
+
+          return (navigator.language || "").toLowerCase().indexOf("pt") === 0 ? "pt-BR" : "en";
+        }
+
+        function render(locale) {
+          window.localStorage.setItem(STORAGE_KEY, locale);
+          document.documentElement.lang = locale;
+          document.title = TITLES[locale];
+
+          var url = new URL(window.location.href);
+          url.searchParams.set("lang", locale);
+          window.history.replaceState(null, "", url);
+
+          buttons.forEach(function (button) {
+            button.setAttribute("aria-pressed", String(button.dataset.locale === locale));
+          });
+
+          Redoc.init(SPECS[locale] + "?v=" + SPEC_VERSION, {}, container);
+        }
+
+        buttons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            if (button.getAttribute("aria-pressed") !== "true") render(button.dataset.locale);
+          });
+        });
+
+        render(initialLocale());
+      })();
+    </script>
   </body>
 </html>

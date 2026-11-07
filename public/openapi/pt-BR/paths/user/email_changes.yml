@@ -1,0 +1,30 @@
+patch:
+  tags: [Usuário]
+  summary: Alterar e-mail
+  description: |
+    Solicita a alteração de e-mail do usuário autenticado.
+    Exige a senha atual. Mantém o e-mail atual até que o novo endereço seja confirmado
+    e envia um e-mail de confirmação para o novo endereço.
+  operationId: changeEmail
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../components/schemas.yml#/EmailChangeRequest"
+        example:
+          current_password: password123
+          new_email: new.email@example.com
+  responses:
+    "200":
+      description: Alteração de e-mail iniciada
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/MessageSuccessResponse"
+    "422":
+      $ref: "../../components/responses.yml#/UnprocessableContent"
+    "500":
+      $ref: "../../components/responses.yml#/Unauthorized"

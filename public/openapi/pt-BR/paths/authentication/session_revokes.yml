@@ -1,0 +1,18 @@
+delete:
+  tags: [Autenticação]
+  summary: Revogar todas as sessões
+  description: Invalida todas as sessões de refresh ativas do usuário autenticado.
+  operationId: revokeSessions
+  security:
+    - bearerAuth: []
+  responses:
+    "200":
+      description: Sessões revogadas
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/MessageSuccessResponse"
+    "422":
+      $ref: "../../components/responses.yml#/UnprocessableContent"
+    "500":
+      $ref: "../../components/responses.yml#/Unauthorized"

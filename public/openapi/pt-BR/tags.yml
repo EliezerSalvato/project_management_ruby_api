@@ -1,0 +1,6 @@
+- name: Autenticação
+  description: Login, renovação de sessão e revogação de sessões
+- name: Usuário
+  description: Cadastro, perfil, conta, e-mail e senha
+- name: Projetos
+  description: Projetos do usuário autenticado, listagem, busca e favoritos

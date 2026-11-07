@@ -1,0 +1,24 @@
+post:
+  tags: [Usuário]
+  summary: Confirmar e-mail
+  description: |
+    Confirma o e-mail do usuário com o token recebido por e-mail.
+    Em uma alteração de e-mail, aplica o novo endereço. Revoga as sessões ativas. Endpoint público.
+  operationId: confirmEmail
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../components/schemas.yml#/EmailConfirmationRequest"
+        example:
+          token: confirmation-token-from-email
+  responses:
+    "200":
+      description: E-mail confirmado
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/MessageSuccessResponse"
+    "422":
+      $ref: "../../components/responses.yml#/UnprocessableContent"

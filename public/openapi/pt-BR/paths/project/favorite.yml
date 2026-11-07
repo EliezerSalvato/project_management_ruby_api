@@ -1,0 +1,45 @@
+parameters:
+  - name: project_id
+    in: path
+    required: true
+    schema:
+      type: string
+      format: uuid
+
+post:
+  tags: [Projetos]
+  summary: Favoritar um projeto
+  description: Define `favorite` como true. Repetir a chamada mantém true.
+  operationId: favoriteProject
+  security:
+    - bearerAuth: []
+  responses:
+    "200":
+      description: Projeto favoritado
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/ProjectSuccessResponse"
+    "401":
+      $ref: "../../components/responses.yml#/Unauthorized"
+    "404":
+      $ref: "../../components/responses.yml#/NotFound"
+
+delete:
+  tags: [Projetos]
+  summary: Desfavoritar um projeto
+  description: Define `favorite` como false. Repetir a chamada mantém false.
+  operationId: unfavoriteProject
+  security:
+    - bearerAuth: []
+  responses:
+    "200":
+      description: Projeto desfavoritado
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/ProjectSuccessResponse"
+    "401":
+      $ref: "../../components/responses.yml#/Unauthorized"
+    "404":
+      $ref: "../../components/responses.yml#/NotFound"

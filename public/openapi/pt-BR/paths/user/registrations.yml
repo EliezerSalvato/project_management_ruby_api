@@ -1,0 +1,41 @@
+post:
+  tags: [Usuário]
+  summary: Cadastrar novo usuário
+  description: |
+    Cria um usuário (não verificado) e enfileira uma mensagem de confirmação de e-mail.
+    Após o cadastro, confirme o e-mail antes de fazer login.
+  operationId: createRegistration
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../components/schemas.yml#/RegistrationRequest"
+        example:
+          first_name: John
+          last_name: Doe
+          email: john.doe@example.com
+          password: password123
+          password_confirmation: password123
+  responses:
+    "201":
+      description: Usuário criado
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/RegistrationSuccessResponse"
+          example:
+            status: success
+            type: object
+            data:
+              user:
+                data:
+                  id: "019abc..."
+                  type: user
+                  attributes:
+                    id: "019abc..."
+                    first_name: John
+                    last_name: Doe
+                    email: john.doe@example.com
+    "422":
+      $ref: "../../components/responses.yml#/UnprocessableContent"

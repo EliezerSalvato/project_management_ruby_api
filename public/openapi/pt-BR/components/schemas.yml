@@ -1,0 +1,349 @@
+AuthenticationRequest:
+  type: object
+  required: [email, password]
+  properties:
+    email:
+      type: string
+      format: email
+    password:
+      type: string
+      format: password
+      minLength: 8
+
+RegistrationRequest:
+  type: object
+  required: [first_name, last_name, email, password, password_confirmation]
+  properties:
+    first_name:
+      type: string
+    last_name:
+      type: string
+    email:
+      type: string
+      format: email
+    password:
+      type: string
+      format: password
+      minLength: 8
+    password_confirmation:
+      type: string
+      format: password
+
+RefreshSessionRequest:
+  type: object
+  required: [refresh_token]
+  properties:
+    refresh_token:
+      type: string
+
+ProfileUpdateRequest:
+  type: object
+  required: [first_name, last_name]
+  properties:
+    first_name:
+      type: string
+    last_name:
+      type: string
+
+AccountDeletionRequest:
+  type: object
+  required: [password]
+  properties:
+    password:
+      type: string
+      format: password
+
+EmailConfirmationRequest:
+  type: object
+  required: [token]
+  properties:
+    token:
+      type: string
+
+EmailChangeRequest:
+  type: object
+  required: [current_password, new_email]
+  properties:
+    current_password:
+      type: string
+      format: password
+    new_email:
+      type: string
+      format: email
+
+PasswordChangeRequest:
+  type: object
+  required: [current_password, password, password_confirmation]
+  properties:
+    current_password:
+      type: string
+      format: password
+    password:
+      type: string
+      format: password
+      minLength: 8
+    password_confirmation:
+      type: string
+      format: password
+
+PasswordResetRequest:
+  type: object
+  required: [email]
+  properties:
+    email:
+      type: string
+      format: email
+
+PasswordResetUpdateRequest:
+  type: object
+  required: [token, password, password_confirmation]
+  properties:
+    token:
+      type: string
+    password:
+      type: string
+      format: password
+      minLength: 8
+    password_confirmation:
+      type: string
+      format: password
+
+TokensData:
+  type: object
+  required: [token, refresh_token, user]
+  properties:
+    token:
+      type: string
+      description: Token de sessão (Bearer). Expira em 15 minutos.
+    refresh_token:
+      type: string
+      description: Refresh token. Expira em 30 dias. Usado para obter um novo token de sessão.
+    user:
+      $ref: "#/UserResource"
+
+TokensSuccessResponse:
+  type: object
+  required: [status, type, data]
+  properties:
+    status:
+      type: string
+      const: success
+    type:
+      type: string
+      const: object
+    data:
+      $ref: "#/TokensData"
+
+MessageSuccessResponse:
+  type: object
+  required: [status]
+  properties:
+    status:
+      type: string
+      const: success
+    message:
+      type: string
+
+UserAttributes:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    first_name:
+      type: string
+    last_name:
+      type: string
+    email:
+      type: string
+      format: email
+
+UserResource:
+  type: object
+  properties:
+    data:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          const: user
+        attributes:
+          $ref: "#/UserAttributes"
+
+RegistrationSuccessResponse:
+  type: object
+  required: [status, type, data]
+  properties:
+    status:
+      type: string
+      const: success
+    type:
+      type: string
+      const: object
+    data:
+      type: object
+      properties:
+        user:
+          $ref: "#/UserResource"
+
+ErrorResponse:
+  type: object
+  required: [status, message, details]
+  properties:
+    status:
+      type: string
+      const: error
+    message:
+      type: string
+    details:
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          type: string
+
+ProjectAttributes:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    name:
+      type: string
+    client_name:
+      type: string
+    start_date:
+      type: string
+      format: date
+    end_date:
+      type: string
+      format: date
+    favorite:
+      type: boolean
+    cover_image_url:
+      type: [string, "null"]
+      format: uri
+      description: |
+        URL que serve a imagem de capa, ou null quando não há imagem. Expira uma hora após a
+        resposta; busque o projeto novamente para obter uma URL nova.
+
+ProjectResource:
+  type: object
+  properties:
+    data:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          const: project
+        attributes:
+          $ref: "#/ProjectAttributes"
+
+ProjectRequest:
+  type: object
+  description: |
+    Envie como `multipart/form-data` ao enviar `cover_image`; caso contrário, JSON é aceito.
+    `favorite` é ignorado aqui: use os endpoints de favorito.
+  properties:
+    name:
+      type: string
+      maxLength: 255
+      description: Pelo menos duas palavras. Espaços nas extremidades são removidos.
+    client_name:
+      type: string
+      maxLength: 255
+    start_date:
+      type: string
+      format: date
+      description: Não anterior a hoje (America/Sao_Paulo).
+    end_date:
+      type: string
+      format: date
+      description: Não anterior a hoje (America/Sao_Paulo) nem anterior a `start_date`.
+    cover_image:
+      type: string
+      format: binary
+      description: JPEG ou PNG, no máximo 5 MB. Corpos de requisição acima de 10 MB são rejeitados com 413 antes da validação.
+
+ProjectCreateRequest:
+  allOf:
+    - $ref: "#/ProjectRequest"
+    - type: object
+      required: [name, client_name, start_date, end_date]
+
+ProjectUpdateRequest:
+  allOf:
+    - $ref: "#/ProjectRequest"
+    - type: object
+      properties:
+        remove_cover_image:
+          type: boolean
+          default: false
+          description: |
+            `true` remove a imagem de capa atual. Ignorado quando uma nova `cover_image` é enviada na mesma
+            requisição (o upload substitui a imagem anterior).
+
+ProjectSuccessResponse:
+  type: object
+  required: [status, type, data]
+  properties:
+    status:
+      type: string
+      const: success
+    type:
+      type: string
+      const: object
+    message:
+      type: string
+    data:
+      type: object
+      properties:
+        project:
+          $ref: "#/ProjectResource"
+
+Pagination:
+  type: object
+  description: |
+    Paginação por cursor para scroll infinito.
+    Envie `next` como query param `after` para carregar mais; `null` significa que não há mais nada a carregar.
+    Se esse projeto for excluído antes da próxima requisição, `after` responde 422: envie o id do
+    projeto carregado antes dele.
+  required: [next, count, limit]
+  properties:
+    next:
+      type: [string, "null"]
+      format: uuid
+      description: Id do último projeto desta página quando há mais, ou null na última página.
+    count:
+      type: integer
+      description: Total de projetos que atendem a `search` e `favorite`, independente de `after`.
+    limit:
+      type: integer
+      description: Máximo de itens por página.
+
+ProjectListSuccessResponse:
+  type: object
+  required: [status, type, data]
+  properties:
+    status:
+      type: string
+      const: success
+    type:
+      type: string
+      const: object
+    data:
+      type: object
+      properties:
+        projects:
+          type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/ProjectResource/properties/data"
+        pagination:
+          $ref: "#/Pagination"

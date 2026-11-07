@@ -1,0 +1,123 @@
+get:
+  tags: [Projetos]
+  summary: Listar projetos
+  description: |
+    Lista os projetos do usuário autenticado, 20 por vez, para scroll infinito.
+    Envie o `pagination.next` da resposta anterior como `after` para carregar os projetos seguintes
+    na ordenação escolhida; pare quando `next` for `null`. Mantenha os mesmos `search`, `sort` e `favorite`
+    entre as requisições. O scroll nunca repete um projeto; um projeto criado acima da posição
+    atual só aparece quando a lista é carregada novamente a partir da primeira página.
+    `search` busca no nome do projeto ou no nome do cliente, ignorando maiúsculas e acentos.
+
+    **Cursor excluído durante o scroll.** `after` ainda precisa ser um dos projetos do usuário. Se o
+    projeto enviado como `after` foi excluído nesse meio-tempo, a requisição responde 422 com o erro em
+    `details.after`. O cliente é responsável pela recuperação: tente novamente com o id do projeto
+    carregado logo antes dele (o item anterior na lista), e continue voltando enquanto a resposta
+    for 422 em `after`. Se nenhum dos projetos carregados existir mais, recarregue a partir da primeira página sem `after`.
+  operationId: listProjects
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: search
+      in: query
+      required: false
+      description: Pelo menos 3 caracteres após remover espaços. Em branco lista tudo.
+      schema:
+        type: string
+        minLength: 3
+    - name: sort
+      in: query
+      required: false
+      description: |
+        `name` (padrão, A-Z sem diferenciar maiúsculas);
+        `recent_start`: projetos já iniciados (data de início até hoje) com início mais recente primeiro,
+        depois projetos ainda não iniciados com início mais próximo primeiro, depois projetos atrasados (data de término antes de hoje)
+        com início mais recente primeiro; `nearest_deadline`: data de término, mais próxima primeiro, projetos atrasados por último.
+        Empates são desfeitos pelo nome e depois pelo id.
+      schema:
+        type: string
+        enum: [name, recent_start, nearest_deadline]
+        default: name
+    - name: favorite
+      in: query
+      required: false
+      description: |
+        `true` lista apenas projetos favoritos, `false` apenas os demais. Omitido ou em branco lista ambos.
+        Combina com `search`, `sort` e `after`.
+      schema:
+        type: string
+        enum: ["true", "false"]
+    - name: after
+      in: query
+      required: false
+      description: |
+        Id do último projeto já carregado, normalmente o `pagination.next` da resposta anterior.
+        Omita na primeira página. Um id que não é de um projeto do usuário (incluindo um
+        excluído durante o scroll) responde 422: tente novamente com o id do projeto carregado anteriormente.
+      schema:
+        type: string
+        format: uuid
+  responses:
+    "200":
+      description: Página de projetos
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/ProjectListSuccessResponse"
+          example:
+            status: success
+            type: object
+            data:
+              projects:
+                data:
+                  - id: "019abc..."
+                    type: project
+                    attributes:
+                      id: "019abc..."
+                      name: Website Redesign
+                      client_name: Acme Corp
+                      start_date: "2026-11-05"
+                      end_date: "2026-12-05"
+                      favorite: false
+                      cover_image_url: null
+              pagination:
+                next: null
+                count: 1
+                limit: 20
+    "401":
+      $ref: "../../components/responses.yml#/Unauthorized"
+    "422":
+      $ref: "../../components/responses.yml#/UnprocessableContent"
+
+post:
+  tags: [Projetos]
+  summary: Criar um projeto
+  description: Cria um projeto do usuário autenticado, com `favorite` false.
+  operationId: createProject
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          $ref: "../../components/schemas.yml#/ProjectCreateRequest"
+      application/json:
+        schema:
+          $ref: "../../components/schemas.yml#/ProjectCreateRequest"
+        example:
+          name: Website Redesign
+          client_name: Acme Corp
+          start_date: "2026-11-05"
+          end_date: "2026-12-05"
+  responses:
+    "201":
+      description: Projeto criado
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/ProjectSuccessResponse"
+    "401":
+      $ref: "../../components/responses.yml#/Unauthorized"
+    "422":
+      $ref: "../../components/responses.yml#/UnprocessableContent"

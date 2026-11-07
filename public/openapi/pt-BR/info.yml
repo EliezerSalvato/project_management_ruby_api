@@ -1,0 +1,51 @@
+title: Project Management Ruby API
+version: "1.0.1"
+description: |
+  ## Autenticação
+
+  Endpoints protegidos exigem um **token de sessão Bearer** no header `Authorization`:
+
+  ```http
+  Authorization: Bearer <token>
+  ```
+
+  ### Fluxo
+
+  1. **Cadastro** — `POST /api/v1/user/registrations`
+  2. **Confirmar e-mail** — `POST /api/v1/user/email/confirmations` (token recebido por e-mail)
+  3. **Login** — `POST /api/v1/user/authentications` → recebe `token` + `refresh_token`
+  4. **Chamar endpoints protegidos** com `Authorization: Bearer <token>`
+  5. **Renovar** — quando o token de sessão expirar, `PATCH /api/v1/user/session/refreshes` com o `refresh_token`
+  6. **Revogar** — `DELETE /api/v1/user/session/revokes` para invalidar todas as sessões ativas
+
+  ### Validade dos tokens
+
+  | Token | Validade |
+  |-------|----------|
+  | Sessão (`token`) | 15 minutos |
+  | Refresh (`refresh_token`) | 30 dias |
+  | Confirmação de e-mail | 24 horas |
+  | Redefinição de senha | 15 minutos |
+
+  ### Públicos vs protegidos
+
+  | Acesso | Endpoints |
+  |--------|-----------|
+  | Público | registrations, authentications, email confirmations, password resets, session refreshes |
+  | Bearer obrigatório | accounts, profiles, email changes, password changes, session revokes |
+
+  ---
+
+  ## Envelope de resposta
+
+  Sucesso:
+
+  ```json
+  { "status": "success", "type": "object", "data": {}, "message": "opcional" }
+  ```
+
+  Erro:
+
+  ```json
+  { "status": "error", "message": "...", "details": { "campo": ["..."] } }
+  ```
