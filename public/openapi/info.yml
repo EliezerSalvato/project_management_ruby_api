@@ -1,5 +1,5 @@
 title: Project Management Ruby API
-version: "1.0.1"
+version: "1.0.2"
 description: |
   ## Authentication
 
@@ -33,6 +33,16 @@ description: |
   |--------|-----------|
   | Public | registrations, authentications, email confirmations, password resets, session refreshes |
   | Bearer required | accounts, profiles, email changes, password changes, session revokes |
+
+  ---
+
+  ## Locale
+
+  Responses are in Brazilian Portuguese (`pt-BR`) by default. Supported locales: `pt-BR`, `en`.
+
+  Send the `Accept-Language` header to choose one (`Accept-Language: en`). The API also reads a `locale`
+  cookie, but browsers only send it when the client and the API share a site, so cross-site clients must
+  use the header. When both are present, the cookie wins.
 
   ---
 

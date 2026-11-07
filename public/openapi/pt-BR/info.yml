@@ -1,5 +1,5 @@
 title: Project Management Ruby API
-version: "1.0.1"
+version: "1.0.2"
 description: |
   ## Autenticação
 
@@ -33,6 +33,16 @@ description: |
   |--------|-----------|
   | Público | registrations, authentications, email confirmations, password resets, session refreshes |
   | Bearer obrigatório | accounts, profiles, email changes, password changes, session revokes |
+
+  ---
+
+  ## Idioma
+
+  As respostas são em português do Brasil (`pt-BR`) por padrão. Idiomas suportados: `pt-BR`, `en`.
+
+  Envie o header `Accept-Language` para escolher um deles (`Accept-Language: en`). A API também lê o cookie
+  `locale`, mas o navegador só o envia quando o cliente e a API estão no mesmo site, então clientes em outro
+  site devem usar o header. Quando os dois estão presentes, o cookie tem prioridade.
 
   ---
 
