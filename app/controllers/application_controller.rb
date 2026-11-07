@@ -1,12 +1,12 @@
 class ApplicationController < ActionController::API
   include ActionController::Cookies
 
-  around_action :switch_locale
-
   private
 
-  def switch_locale(&action)
-    I18n.with_locale(locale_from_cookie, &action)
+  # Wraps process_action instead of using around_action so rescue_from handlers,
+  # which run outside the callback chain, also answer in the requested locale.
+  def process_action(*)
+    I18n.with_locale(locale_from_cookie) { super }
   end
 
   def locale_from_cookie
