@@ -34,7 +34,9 @@ class API::V1::BaseController < ApplicationController
       value: refresh_token,
       httponly: true,
       secure: Rails.env.production?,
-      same_site: :lax
+      # In production the frontend and the API run on different sites (onrender.com is a public suffix),
+      # so browsers drop a Lax cookie set by a cross-site fetch. None requires Secure, which only production has.
+      same_site: Rails.env.production? ? :none : :lax
     }
 
     cookie_options[:expires] = User::Token::REFRESH_TOKEN_EXPIRES_IN if remember_me
