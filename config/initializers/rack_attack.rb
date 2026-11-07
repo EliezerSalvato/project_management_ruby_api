@@ -4,6 +4,6 @@ class Rack::Attack
   end
 
   throttle("login/ip", limit: 10, period: 1.minute) do |req|
-    req.ip if req.post? && req.path == "/api/v1/session"
+    req.ip if req.post? && req.path == "/api/v1/user/authentications"
   end
 end
