@@ -4,7 +4,7 @@ Este documento lista as principais tecnologias usadas no projeto e o motivo de c
 
 ## Linguagem e framework
 
-### Ruby 3.4.5
+### Ruby 3.4.12
 Versão estável mais recente da linguagem, com ganhos de desempenho (YJIT) e melhorias de sintaxe.
 Usar uma versão atual facilita manutenção e atualizações de segurança.
 

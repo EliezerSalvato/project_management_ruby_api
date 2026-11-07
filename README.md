@@ -7,7 +7,7 @@
     <td align="left">
       <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ruby/ruby-original.svg" alt="Ruby" width="48" height="48" /><br />
       <strong>Ruby</strong><br />
-      3.4.5
+      3.4.12
     </td>
     <td align="left">
       <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rails/rails-plain-wordmark.svg" alt="Rails" width="48" height="48" /><br />
@@ -40,7 +40,7 @@
 ## Requirements
 
 - [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/)
-- Ruby 3.4.5 (only if running outside Docker)
+- Ruby 3.4.12 (only if running outside Docker)
 
 ## Setup instructions
 
