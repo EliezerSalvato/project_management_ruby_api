@@ -45,6 +45,10 @@ module ProjectManagementRubyApi
     # Cover image URLs (rails_blob_url) stop working after this; clients get fresh ones from the API.
     config.active_storage.urls_expire_in = 1.hour
 
+    # The engine's routes include unauthenticated direct uploads (POST direct_uploads, PUT disk).
+    # Uploads go through the authenticated project endpoints, so config/routes.rb draws only the read routes.
+    config.active_storage.draw_routes = false
+
     # Locale selection and the refresh token both use cookies.
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use Rack::Attack

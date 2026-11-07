@@ -6,6 +6,18 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
   get "docs" => redirect("/docs/index.html")
 
+  # Read-only Active Storage routes for cover image URLs (draw_routes is off in config/application.rb).
+  scope ActiveStorage.routes_prefix do
+    get "/blobs/redirect/:signed_id/*filename" => "active_storage/blobs/redirect#show", as: :rails_service_blob
+    get "/disk/:encoded_key/*filename" => "active_storage/disk#show", as: :rails_disk_service
+  end
+
+  direct :rails_blob do |blob, options|
+    expires_in = options.delete(:expires_in) { ActiveStorage.urls_expire_in }
+
+    route_for(:rails_service_blob, blob.signed_id(expires_in:), blob.filename, options)
+  end
+
   namespace :api do
     namespace :v1 do
       resources :projects, only: %i[index show create update destroy] do
