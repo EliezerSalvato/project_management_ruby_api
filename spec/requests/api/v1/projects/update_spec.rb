@@ -179,6 +179,19 @@ RSpec.describe "PATCH /api/v1/projects/:id", type: :request do
       expect(project.reload.name).to eq("Website Redesign")
     end
 
+    it "answers 422 with the record errors when the record rejects the update" do
+      allow_any_instance_of(Project).to receive(:update) do |record|
+        record.errors.add(:name, :invalid)
+        false
+      end
+
+      update_project(project.id, { name: "Mobile App" }, headers)
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body.dig("details", "name")).to be_present
+      expect(project.reload.name).to eq("Website Redesign")
+    end
+
     it "answers 404 for another user's project" do
       update_project(create(:project).id, { name: "Hijacked Project" }, headers)
 

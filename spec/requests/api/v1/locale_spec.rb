@@ -43,6 +43,12 @@ RSpec.describe "API locale selection", type: :request do
     expect(response.parsed_body["message"]).to eq(message_in(:"pt-BR"))
   end
 
+  it "skips empty entries in Accept-Language" do
+    get_missing_project("Accept-Language" => ", ;q=0.9, en")
+
+    expect(response.parsed_body["message"]).to eq(message_in(:en))
+  end
+
   it "prefers the locale cookie over Accept-Language" do
     cookies[:locale] = "en"
 

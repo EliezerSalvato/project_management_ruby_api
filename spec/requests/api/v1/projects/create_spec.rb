@@ -229,6 +229,18 @@ RSpec.describe "POST /api/v1/projects", type: :request do
         expect(response.parsed_body.dig("details", "start_date")).to be_present
       end
     end
+
+    it "answers 422 with the record errors when the record rejects the creation" do
+      allow_any_instance_of(Project).to receive(:save) do |record|
+        record.errors.add(:name, :invalid)
+        false
+      end
+
+      expect { create_project(valid_params, headers) }.not_to change(Project, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.parsed_body.dig("details", "name")).to be_present
+    end
   end
 
   context "when unauthenticated" do

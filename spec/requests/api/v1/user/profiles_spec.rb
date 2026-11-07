@@ -46,6 +46,23 @@ RSpec.describe "API::V1::User::Profiles", type: :request do
           expect(response.parsed_body.dig("details", "last_name")).to be_present
         end
       end
+
+      context "when the record rejects the update" do
+        before do
+          allow_any_instance_of(User).to receive(:update) do |record|
+            record.errors.add(:first_name, :invalid)
+            false
+          end
+        end
+
+        it "returns 422 with the record errors" do
+          update_profile(valid_params, headers)
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.parsed_body.dig("details", "first_name")).to be_present
+          expect(user.reload).to have_attributes(first_name: "John", last_name: "Doe")
+        end
+      end
     end
 
     context "when unauthenticated" do
