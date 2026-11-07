@@ -1,7 +1,7 @@
 # Run using bin/ci
 #
-# Single source of truth for which checks to run.
-# Machine/environment prep lives in .github/workflows/ci.yml (and locally via Docker).
+# Local entry point for the checks (run inside Docker).
+# GitHub Actions runs the same steps individually in .github/workflows/ci.yml — keep both in sync.
 
 CI.run do
   step "Setup", "bin/setup --skip-server"
