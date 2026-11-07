@@ -1,9 +1,19 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+user = User.find_or_create_by!(email: "user@example.com") do |new_user|
+  new_user.first_name = "User"
+  new_user.last_name = "Example"
+  new_user.password = "12345678"
+  new_user.verified = true
+end
+
+first_date = Date.new(2026, 1, 1)
+last_date = Date.new(2027, 12, 31)
+
+1.upto(100) do |number|
+  user.projects.find_or_create_by!(name: format("Projeto %02d", number)) do |project|
+    start_date = rand(first_date...last_date)
+
+    project.client_name = "Clicksign"
+    project.start_date = start_date
+    project.end_date = rand(start_date.next_day..last_date)
+  end
+end
