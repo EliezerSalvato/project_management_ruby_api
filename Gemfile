@@ -10,8 +10,6 @@ gem "bootsnap", "~> 1.26", require: false
 
 # API
 gem "jsonapi-serializer", "~> 2.2"
-gem "pagy", "~> 43.8"
-gem "ransack", "~> 6.0"
 gem "rack-cors", "~> 3.0"
 gem "rack-attack", "~> 6.8"
 

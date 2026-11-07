@@ -202,7 +202,7 @@ NEVER add `# frozen_string_literal: true` to the top of the file. REMOVE it if i
 Always:
 
 - version APIs (`/api/v1`)
-- when exposing collections, paginate with Pagy (gem is available; no in-app usage pattern yet — follow Pagy docs and keep the response envelope)
+- when exposing collections, paginate by cursor (keyset) like `Project::Search` (`after` param, `next_cursor`, whitelisted sorts in `Project::Sort`) and keep the response envelope
 - use serializers (`jsonapi-serializer`, e.g. `User::Serializer`) wrapping Active Record from the form (`data: { user: User::Serializer.new(user) }`)
 - use I18n for controller messages under `config/locales/<context>/` (`user.registration.success`), form errors under `activemodel.errors.models.<form/path>.attributes`, and mailer subjects under `config/locales/<context>/mailer.*.yml`
 - keep OpenAPI docs in sync: add/update path files under `public/openapi/paths/`, wire them in `public/openapi/spec.yml`, update `components/` when needed (Redoc UI at `/docs`), and mirror every change in the Portuguese tree `public/openapi/pt-BR/` (same files and `$ref`s, translated text; tags `Autenticação`, `Usuário`, `Projetos`). Bump `SPEC_VERSION` in `public/docs/index.html` after changing the spec

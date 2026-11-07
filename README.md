@@ -27,7 +27,7 @@
 | App server | Puma 8 |
 | Auth | bcrypt + session tokens + refresh tokens |
 | Serialization | jsonapi-serializer |
-| Pagination | Pagy |
+| Pagination | Cursor (keyset), no gem |
 | Business logic | ActiveModel form objects |
 | Security | rack-attack, rack-cors |
 | Testing | RSpec, Factory Bot, Faker, SimpleCov |
