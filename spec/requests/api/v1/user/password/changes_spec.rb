@@ -48,7 +48,7 @@ RSpec.describe "API::V1::User::Password::Changes", type: :request do
           update_password(valid_params.merge(current_password: "wrong-password"), headers)
 
           expect(response).to have_http_status(:unprocessable_content)
-          expect(response.parsed_body.dig("details", "current_password")).to eq([ "is invalid" ])
+          expect(response.parsed_body.dig("details", "current_password")).to eq([ "é inválida" ])
         end
       end
 
@@ -60,7 +60,7 @@ RSpec.describe "API::V1::User::Password::Changes", type: :request do
           )
 
           expect(response).to have_http_status(:unprocessable_content)
-          expect(response.parsed_body.dig("details", "password")).to eq([ "is the same as the current password" ])
+          expect(response.parsed_body.dig("details", "password")).to eq([ "é igual à senha atual" ])
         end
       end
 

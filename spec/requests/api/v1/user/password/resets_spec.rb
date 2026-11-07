@@ -41,7 +41,7 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
           .not_to have_enqueued_mail(UserMailer, :password_reset)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "email")).to eq([ "not found" ])
+        expect(response.parsed_body.dig("details", "email")).to eq([ "não encontrado" ])
       end
     end
 
@@ -52,7 +52,7 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
         post_reset(email: user.email)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "User email is not verified" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "E-mail do usuário não verificado" ])
       end
     end
 
@@ -63,7 +63,7 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
         post_reset(email: user.email)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "User is not active" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Usuário não está ativo" ])
       end
     end
 
@@ -118,7 +118,7 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
 
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.parsed_body["status"]).to eq("error")
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Token is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Token inválido" ])
       end
     end
 
@@ -129,7 +129,7 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
         patch_reset(valid_params)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Token is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Token inválido" ])
       end
     end
 
@@ -140,7 +140,7 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
         patch_reset(valid_params)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Token is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Token inválido" ])
       end
     end
 
@@ -152,7 +152,7 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
         patch_reset(valid_params)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Token is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Token inválido" ])
         expect(user.reload.authenticate("password123")).to be_truthy
         expect(password_reset.reload.reset_at).to be_nil
       end
@@ -165,7 +165,7 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
         patch_reset(valid_params)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "User is not active" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Usuário não está ativo" ])
       end
     end
 
@@ -176,7 +176,7 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
         patch_reset(valid_params)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "User email is not verified" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "E-mail do usuário não verificado" ])
       end
     end
 
@@ -185,7 +185,7 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
         patch_reset(valid_params.merge(password: "password123", password_confirmation: "password123"))
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "password")).to eq([ "is the same as the current password" ])
+        expect(response.parsed_body.dig("details", "password")).to eq([ "é igual à senha atual" ])
       end
     end
 

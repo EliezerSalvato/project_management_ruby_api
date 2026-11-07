@@ -47,7 +47,7 @@ RSpec.describe "API::V1::User::Session::Refreshes", type: :request do
         patch_refresh
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Refresh token is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Refresh token inválido" ])
       end
 
       it "keeps the session short-lived and the cookie tied to the browser session by default" do
@@ -102,7 +102,7 @@ RSpec.describe "API::V1::User::Session::Refreshes", type: :request do
 
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.parsed_body["status"]).to eq("error")
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Refresh token is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Refresh token inválido" ])
       end
     end
 
@@ -115,7 +115,7 @@ RSpec.describe "API::V1::User::Session::Refreshes", type: :request do
         patch_refresh
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Refresh token is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Refresh token inválido" ])
       end
     end
 
@@ -128,7 +128,7 @@ RSpec.describe "API::V1::User::Session::Refreshes", type: :request do
         patch_refresh
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "User is not active" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Usuário não está ativo" ])
       end
     end
 

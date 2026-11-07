@@ -132,14 +132,14 @@ RSpec.describe "API::V1::User::Authentications", type: :request do
 
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.parsed_body["status"]).to eq("error")
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Email or password is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "E-mail ou senha inválidos" ])
       end
 
       it "rejects an unknown email" do
         post_authentication(valid_params.merge(email: "unknown@example.com"))
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Email or password is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "E-mail ou senha inválidos" ])
       end
     end
 
@@ -162,7 +162,7 @@ RSpec.describe "API::V1::User::Authentications", type: :request do
         post_authentication(valid_params)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "User is not active" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Usuário não está ativo" ])
       end
     end
 

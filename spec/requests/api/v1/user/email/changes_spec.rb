@@ -74,7 +74,7 @@ RSpec.describe "API::V1::User::Email::Changes", type: :request do
           update_email(valid_params.merge(current_password: "wrong-password"), headers)
 
           expect(response).to have_http_status(:unprocessable_content)
-          expect(response.parsed_body.dig("details", "current_password")).to eq([ "is invalid" ])
+          expect(response.parsed_body.dig("details", "current_password")).to eq([ "não é válido" ])
           expect(user.reload.email).to eq(original_email)
         end
       end
@@ -85,7 +85,7 @@ RSpec.describe "API::V1::User::Email::Changes", type: :request do
 
           expect(response).to have_http_status(:unprocessable_content)
           expect(response.parsed_body.dig("details", "base")).to eq(
-            [ "New email is the same as the current email" ]
+            [ "O novo e-mail é igual ao e-mail atual" ]
           )
         end
       end

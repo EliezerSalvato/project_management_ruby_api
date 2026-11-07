@@ -32,13 +32,13 @@ RSpec.describe "Project endpoints access", type: :request do
   it "answers 404 in the locale from the cookie for a project deleted in the meantime" do
     id = own_project.id
     own_project.destroy!
-    cookies[:locale] = "pt-BR"
+    cookies[:locale] = "en"
 
     member_requests(id).each do |endpoint, request|
       request.call
 
       expect(response).to have_http_status(:not_found), "#{endpoint} answered #{response.status}"
-      expect(response.parsed_body["message"]).to eq(I18n.t("api.errors.not_found", locale: :"pt-BR"))
+      expect(response.parsed_body["message"]).to eq(I18n.t("api.errors.not_found", locale: :en))
     end
   end
 

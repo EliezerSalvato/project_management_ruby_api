@@ -29,7 +29,7 @@ RSpec.describe "API::V1::User::Accounts", type: :request do
             .not_to change(User, :count)
 
           expect(response).to have_http_status(:unprocessable_content)
-          expect(response.parsed_body.dig("details", "password")).to eq([ "is invalid" ])
+          expect(response.parsed_body.dig("details", "password")).to eq([ "não é válido" ])
         end
       end
 

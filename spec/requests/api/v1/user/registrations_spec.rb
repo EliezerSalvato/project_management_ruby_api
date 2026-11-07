@@ -74,7 +74,7 @@ RSpec.describe "API::V1::User::Registrations", type: :request do
 
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.parsed_body["status"]).to eq("error")
-        expect(response.parsed_body.dig("details", "email")).to include("has already been taken")
+        expect(response.parsed_body.dig("details", "email")).to include("já está em uso")
       end
     end
 

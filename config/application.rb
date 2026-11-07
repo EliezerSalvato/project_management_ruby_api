@@ -50,7 +50,7 @@ module ProjectManagementRubyApi
     config.middleware.use Rack::Attack
 
     config.i18n.available_locales = %i[en pt-BR]
-    config.i18n.default_locale = :en
+    config.i18n.default_locale = :"pt-BR"
     config.i18n.fallbacks = true
 
     config.generators do |g|

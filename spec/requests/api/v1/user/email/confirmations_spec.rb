@@ -71,7 +71,7 @@ RSpec.describe "API::V1::User::Email::Confirmations", type: :request do
         post_confirmation(token: token)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Email has already been taken" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "E-mail já está em uso" ])
         expect(user.reload).to have_attributes(email: "old.email@example.com", verified: true)
         expect(confirmation.reload.confirmed_at).to be_nil
         expect(UserSession.active.where(user_id: user.id)).to include(session)
@@ -84,7 +84,7 @@ RSpec.describe "API::V1::User::Email::Confirmations", type: :request do
 
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.parsed_body["status"]).to eq("error")
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Token is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Token inválido" ])
         expect(user.reload).not_to be_verified
       end
     end
@@ -96,7 +96,7 @@ RSpec.describe "API::V1::User::Email::Confirmations", type: :request do
         post_confirmation(token: token)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Token is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Token inválido" ])
         expect(user.reload).not_to be_verified
       end
     end
@@ -108,7 +108,7 @@ RSpec.describe "API::V1::User::Email::Confirmations", type: :request do
         post_confirmation(token: token)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "Token is invalid" ])
+        expect(response.parsed_body.dig("details", "base")).to eq([ "Token inválido" ])
       end
     end
 
