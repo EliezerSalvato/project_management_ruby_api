@@ -1,0 +1,123 @@
+get:
+  tags: [Projects]
+  summary: List projects
+  description: |
+    Lists the authenticated user's projects, 20 at a time, for infinite scroll.
+    Send the previous response's `pagination.next` as `after` to load the projects that follow it
+    in the chosen sort; stop when `next` is `null`. Keep the same `search`, `sort` and `favorite`
+    across requests. Scrolling never repeats a project; a project created above the current
+    position only shows up when the list is loaded again from the first page.
+    `search` matches project name or client name, ignoring case and accents.
+
+    **Cursor deleted while scrolling.** `after` must still be one of the user's projects. If the
+    project sent as `after` was deleted in the meantime, the request answers 422 with the error in
+    `details.after`. The client is responsible for recovering: retry with the id of the project
+    loaded right before it (the previous item in the list), and keep stepping back while the answer
+    is 422 on `after`. If none of the loaded projects remain, reload from the first page without `after`.
+  operationId: listProjects
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: search
+      in: query
+      required: false
+      description: At least 3 characters after stripping spaces. Blank lists everything.
+      schema:
+        type: string
+        minLength: 3
+    - name: sort
+      in: query
+      required: false
+      description: |
+        `name` (default, case-insensitive A-Z);
+        `recent_start`: projects already started (start date up to today) newest start first,
+        then projects not started yet soonest start first, then overdue projects (end date before today)
+        newest start first; `nearest_deadline`: end date, soonest first, overdue projects last.
+        Ties break by name, then id.
+      schema:
+        type: string
+        enum: [name, recent_start, nearest_deadline]
+        default: name
+    - name: favorite
+      in: query
+      required: false
+      description: |
+        `true` lists only favorite projects, `false` only the others. Omitted or blank lists both.
+        Combines with `search`, `sort` and `after`.
+      schema:
+        type: string
+        enum: ["true", "false"]
+    - name: after
+      in: query
+      required: false
+      description: |
+        Id of the last project already loaded, usually the previous response's `pagination.next`.
+        Omit it for the first page. An id that is not one of the user's projects (including one
+        deleted while scrolling) answers 422: retry with the previous loaded project's id.
+      schema:
+        type: string
+        format: uuid
+  responses:
+    "200":
+      description: Projects page
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/ProjectListSuccessResponse"
+          example:
+            status: success
+            type: object
+            data:
+              projects:
+                data:
+                  - id: "019abc..."
+                    type: project
+                    attributes:
+                      id: "019abc..."
+                      name: Website Redesign
+                      client_name: Acme Corp
+                      start_date: "2026-11-05"
+                      end_date: "2026-12-05"
+                      favorite: false
+                      cover_image_url: null
+              pagination:
+                next: null
+                count: 1
+                limit: 20
+    "401":
+      $ref: "../../components/responses.yml#/Unauthorized"
+    "422":
+      $ref: "../../components/responses.yml#/UnprocessableContent"
+
+post:
+  tags: [Projects]
+  summary: Create a project
+  description: Creates a project owned by the authenticated user, with `favorite` false.
+  operationId: createProject
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          $ref: "../../components/schemas.yml#/ProjectCreateRequest"
+      application/json:
+        schema:
+          $ref: "../../components/schemas.yml#/ProjectCreateRequest"
+        example:
+          name: Website Redesign
+          client_name: Acme Corp
+          start_date: "2026-11-05"
+          end_date: "2026-12-05"
+  responses:
+    "201":
+      description: Project created
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas.yml#/ProjectSuccessResponse"
+    "401":
+      $ref: "../../components/responses.yml#/Unauthorized"
+    "422":
+      $ref: "../../components/responses.yml#/UnprocessableContent"

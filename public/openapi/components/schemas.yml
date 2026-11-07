@@ -203,3 +203,147 @@ ErrorResponse:
         type: array
         items:
           type: string
+
+ProjectAttributes:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+    name:
+      type: string
+    client_name:
+      type: string
+    start_date:
+      type: string
+      format: date
+    end_date:
+      type: string
+      format: date
+    favorite:
+      type: boolean
+    cover_image_url:
+      type: [string, "null"]
+      format: uri
+      description: |
+        URL that serves the cover image, or null when there is none. It expires one hour after the
+        response; fetch the project again for a fresh URL.
+
+ProjectResource:
+  type: object
+  properties:
+    data:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          const: project
+        attributes:
+          $ref: "#/ProjectAttributes"
+
+ProjectRequest:
+  type: object
+  description: |
+    Send as `multipart/form-data` when uploading `cover_image`; JSON is accepted otherwise.
+    `favorite` is ignored here: use the favorite endpoints.
+  properties:
+    name:
+      type: string
+      maxLength: 255
+      description: At least two words. Surrounding spaces are stripped.
+    client_name:
+      type: string
+      maxLength: 255
+    start_date:
+      type: string
+      format: date
+      description: Not before today (America/Sao_Paulo).
+    end_date:
+      type: string
+      format: date
+      description: Not before today (America/Sao_Paulo) and not before `start_date`.
+    cover_image:
+      type: string
+      format: binary
+      description: JPEG or PNG, at most 5 MB. Request bodies above 10 MB are rejected with 413 before validation.
+
+ProjectCreateRequest:
+  allOf:
+    - $ref: "#/ProjectRequest"
+    - type: object
+      required: [name, client_name, start_date, end_date]
+
+ProjectUpdateRequest:
+  allOf:
+    - $ref: "#/ProjectRequest"
+    - type: object
+      properties:
+        remove_cover_image:
+          type: boolean
+          default: false
+          description: |
+            `true` removes the current cover image. Ignored when a new `cover_image` is sent in the same
+            request (the upload replaces the old image).
+
+ProjectSuccessResponse:
+  type: object
+  required: [status, type, data]
+  properties:
+    status:
+      type: string
+      const: success
+    type:
+      type: string
+      const: object
+    message:
+      type: string
+    data:
+      type: object
+      properties:
+        project:
+          $ref: "#/ProjectResource"
+
+Pagination:
+  type: object
+  description: |
+    Cursor pagination for infinite scroll.
+    Send `next` as the `after` query param to load more; `null` means there is nothing left to load.
+    If that project is deleted before the next request, `after` answers 422: send the id of the
+    project loaded before it instead.
+  required: [next, count, limit]
+  properties:
+    next:
+      type: [string, "null"]
+      format: uuid
+      description: Id of the last project in this page when more follow, or null on the last page.
+    count:
+      type: integer
+      description: Total of projects matching `search` and `favorite`, regardless of `after`.
+    limit:
+      type: integer
+      description: Maximum items per page.
+
+ProjectListSuccessResponse:
+  type: object
+  required: [status, type, data]
+  properties:
+    status:
+      type: string
+      const: success
+    type:
+      type: string
+      const: object
+    data:
+      type: object
+      properties:
+        projects:
+          type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/ProjectResource/properties/data"
+        pagination:
+          $ref: "#/Pagination"

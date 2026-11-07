@@ -21,3 +21,14 @@ Unauthorized:
         status: error
         message: Unauthorized
         details: {}
+
+NotFound:
+  description: Resource not found, or owned by another user
+  content:
+    application/json:
+      schema:
+        $ref: "./schemas.yml#/ErrorResponse"
+      example:
+        status: error
+        message: Not found
+        details: {}

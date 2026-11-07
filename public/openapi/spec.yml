@@ -31,6 +31,12 @@ paths:
     $ref: "./paths/user/password_changes.yml"
   /api/v1/user/password/resets:
     $ref: "./paths/user/password_resets.yml"
+  /api/v1/projects:
+    $ref: "./paths/project/projects.yml"
+  /api/v1/projects/{id}:
+    $ref: "./paths/project/project.yml"
+  /api/v1/projects/{project_id}/favorite:
+    $ref: "./paths/project/favorite.yml"
 
 components:
   securitySchemes:

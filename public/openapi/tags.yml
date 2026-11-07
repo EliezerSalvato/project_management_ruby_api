@@ -2,3 +2,5 @@
   description: Sign in, refresh session, and revoke sessions
 - name: User
   description: Registration, profile, account, email, and password
+- name: Projects
+  description: Projects owned by the authenticated user, list, search and favorites
