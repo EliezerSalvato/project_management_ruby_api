@@ -31,6 +31,9 @@ threads threads_count, threads_count
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 port ENV.fetch("PORT", 3000)
 
+# Reject request bodies above 10 MB with 413 before they reach Rails (cover images are at most 5 MB).
+http_content_length_limit 10 * 1024 * 1024
+
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
 

@@ -2,6 +2,7 @@ class User < ApplicationRecord
   has_many :sessions, class_name: "UserSession", dependent: :destroy
   has_many :email_confirmations, class_name: "UserEmailConfirmation", dependent: :destroy
   has_many :password_resets, class_name: "UserPasswordReset", dependent: :destroy
+  has_many :projects, dependent: :destroy
 
   has_secure_password
 

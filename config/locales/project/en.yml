@@ -1,0 +1,40 @@
+---
+en:
+  activemodel:
+    errors:
+      models:
+        project/creation:
+          attributes:
+            cover_image:
+              content_type: must be a JPEG or PNG image
+              file_size: must be at most 5 MB
+            end_date:
+              before_start_date: must be on or after the start date
+              before_today: can't be before today
+            name:
+              two_words: must have at least two words
+            start_date:
+              before_today: can't be before today
+        project/search:
+          attributes:
+            after:
+              not_found: must be the id of one of your projects
+        project/update:
+          attributes:
+            cover_image:
+              content_type: must be a JPEG or PNG image
+              file_size: must be at most 5 MB
+            end_date:
+              before_start_date: must be on or after the start date
+              before_today: can't be before today
+            name:
+              two_words: must have at least two words
+            start_date:
+              before_today: can't be before today
+  project:
+    creation:
+      success: Project created successfully
+    deletion:
+      success: Project deleted successfully
+    update:
+      success: Project updated successfully

@@ -1,0 +1,40 @@
+---
+pt-BR:
+  activemodel:
+    errors:
+      models:
+        project/creation:
+          attributes:
+            cover_image:
+              content_type: deve ser uma imagem JPEG ou PNG
+              file_size: deve ter no máximo 5 MB
+            end_date:
+              before_start_date: deve ser igual ou posterior à data de início
+              before_today: não pode ser anterior a hoje
+            name:
+              two_words: deve ter pelo menos duas palavras
+            start_date:
+              before_today: não pode ser anterior a hoje
+        project/search:
+          attributes:
+            after:
+              not_found: deve ser o id de um dos seus projetos
+        project/update:
+          attributes:
+            cover_image:
+              content_type: deve ser uma imagem JPEG ou PNG
+              file_size: deve ter no máximo 5 MB
+            end_date:
+              before_start_date: deve ser igual ou posterior à data de início
+              before_today: não pode ser anterior a hoje
+            name:
+              two_words: deve ter pelo menos duas palavras
+            start_date:
+              before_today: não pode ser anterior a hoje
+  project:
+    creation:
+      success: Projeto criado com sucesso
+    deletion:
+      success: Projeto excluído com sucesso
+    update:
+      success: Projeto atualizado com sucesso
