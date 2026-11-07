@@ -5,9 +5,7 @@ class API::V1::User::Session::RefreshesController < API::V1::BaseController
     refresh = User::Session::Refresh.new(refresh_params)
 
     if refresh.save
-      if refresh.refresh_token.present?
-        set_refresh_token_as_cookie(refresh_token: refresh.refresh_token, remember_me: refresh.remember_me)
-      end
+      set_refresh_token_as_cookie(refresh_token: refresh.refresh_token, remember_me: refresh.remember_me)
 
       render_json_with_success(
         status: :ok,

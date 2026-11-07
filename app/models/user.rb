@@ -7,7 +7,7 @@ class User < ApplicationRecord
   has_secure_password
 
   generates_token_for :reset_password, expires_in: User::Password::RESET_TOKEN_EXPIRES_IN do
-    password_salt&.last(10)
+    password_salt.last(10)
   end
 
   generates_token_for :email_confirmation, expires_in: User::Email::CONFIRMATION_TOKEN_EXPIRES_IN do

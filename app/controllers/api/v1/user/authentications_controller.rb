@@ -5,12 +5,7 @@ class API::V1::User::AuthenticationsController < API::V1::BaseController
     authentication = User::Authentication.new(authentication_params)
 
     if authentication.save
-      if authentication.refresh_token.present?
-        set_refresh_token_as_cookie(
-          refresh_token: authentication.refresh_token,
-          remember_me: authentication.remember_me
-        )
-      end
+      set_refresh_token_as_cookie(refresh_token: authentication.refresh_token, remember_me: authentication.remember_me)
 
       render_json_with_success(
         status: :ok,
