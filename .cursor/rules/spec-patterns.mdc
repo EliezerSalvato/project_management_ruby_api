@@ -37,4 +37,4 @@ Under `spec/factories/<context>/`, with `class:` matching the flattened Active R
 
 ## Model specs
 
-Thin persistence-only specs named after the table class (`spec/models/user_spec.rb`, `spec/models/user_session_spec.rb`). When adding `errors.add`, keep keys covered in `spec/models/user/error_messages_spec.rb`.
+Thin persistence-only specs named after the table class (`spec/models/user_spec.rb`, `spec/models/user_session_spec.rb`). When adding `errors.add`, keep keys covered in `spec/models/error_messages_spec.rb`.

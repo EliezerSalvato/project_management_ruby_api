@@ -205,7 +205,7 @@ Always:
 - when exposing collections, paginate with Pagy (gem is available; no in-app usage pattern yet — follow Pagy docs and keep the response envelope)
 - use serializers (`jsonapi-serializer`, e.g. `User::Serializer`) wrapping Active Record from the form (`data: { user: User::Serializer.new(user) }`)
 - use I18n for controller messages under `config/locales/<context>/` (`user.registration.success`), form errors under `activemodel.errors.models.<form/path>.attributes`, and mailer subjects under `config/locales/<context>/mailer.*.yml`
-- keep OpenAPI docs in sync: add/update path files under `public/openapi/paths/`, wire them in `public/openapi/spec.yml`, update `components/` when needed (Redoc UI at `/docs`)
+- keep OpenAPI docs in sync: add/update path files under `public/openapi/paths/`, wire them in `public/openapi/spec.yml`, update `components/` when needed (Redoc UI at `/docs`), and mirror every change in the Portuguese tree `public/openapi/pt-BR/` (same files and `$ref`s, translated text; tags `Autenticação`, `Usuário`, `Projetos`). Bump `SPEC_VERSION` in `public/docs/index.html` after changing the spec
 - return proper HTTP status codes
 - keep response consistency (`render_json_with_success` / `render_json_with_error` / `render_json_with_model_errors`)
 - use Zeitwerk conventions
@@ -220,7 +220,7 @@ Prefer the existing style:
 - **FactoryBot** factories under `spec/factories/<context>/`, with `class:` matching the flattened Active Record class (`:user`, `:user_session`, `:user_email_confirmation`, `:user_password_reset`)
 - Thin **model specs** only when persistence behavior needs unit coverage (`spec/models/user_spec.rb`, `spec/models/user_session_spec.rb`)
 - Reuse helpers in `spec/support/` (`AuthHelpers`) and shared examples (`an unauthorized API request`)
-- Keep form error keys covered (`spec/models/user/error_messages_spec.rb`) when adding `errors.add`
+- Keep form error keys covered (`spec/models/error_messages_spec.rb`) when adding `errors.add`
 
 Do not invent form unit specs as the primary coverage. Mirror an existing request spec when adding an endpoint.
 
@@ -238,6 +238,16 @@ Do not invent form unit specs as the primary coverage. Mirror an existing reques
 ### Commits
 
 Only create a git commit when the user explicitly asks. When committing, follow `.cursor/rules/commit-patterns.mdc` (Conventional Commits).
+
+---
+
+## Finishing a task
+
+Always run `docker compose exec api bin/ci` before reporting a change or task as done (and before any commit). It runs: setup, RuboCop, i18n-tasks health, bundler-audit, Brakeman, and RSpec.
+
+- Every step must pass. If a step fails, fix the cause and run `docker compose exec api bin/ci` again.
+- Never silence a check to make it pass (`brakeman.ignore`, `rubocop:disable`, skipped specs, lowering coverage) unless the user explicitly approves.
+- Report the result in the final summary. If a failure can't be fixed within the task, quote the failing step and its output.
 
 ---
 
