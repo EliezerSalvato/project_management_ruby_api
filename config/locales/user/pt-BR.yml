@@ -46,6 +46,13 @@ pt-BR:
             base:
               invalid_refresh_token: Refresh token inválido
               user_is_not_active: Usuário não está ativo
+  activerecord:
+    errors:
+      models:
+        user:
+          attributes:
+            password:
+              password_too_long: é muito longa (máximo de 72 bytes)
   user:
     account:
       deletion:

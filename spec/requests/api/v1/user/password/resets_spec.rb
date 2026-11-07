@@ -112,6 +112,19 @@ RSpec.describe "API::V1::User::Password::Resets", type: :request do
       end
     end
 
+    context "with a password longer than 72 bytes" do
+      it "returns 422 and leaves the token pending and the password unchanged" do
+        long_password = "a" * 73
+
+        patch_reset(valid_params.merge(password: long_password, password_confirmation: long_password))
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body.dig("details", "password")).to eq([ "é muito longa (máximo de 72 bytes)" ])
+        expect(password_reset.reload.reset_at).to be_nil
+        expect(user.reload.authenticate("password123")).to be_truthy
+      end
+    end
+
     context "with an invalid token" do
       it "returns 422 unprocessable entity" do
         patch_reset(valid_params.merge(token: "invalid-token"))

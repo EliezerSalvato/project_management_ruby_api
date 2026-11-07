@@ -79,6 +79,16 @@ RSpec.describe "API::V1::User::Registrations", type: :request do
     end
 
     context "with invalid params" do
+      it "rejects a password longer than 72 bytes without creating the user" do
+        long_password = "a" * 73
+
+        expect { post_registration(valid_params.merge(password: long_password, password_confirmation: long_password)) }
+          .not_to change(User, :count)
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body.dig("details", "password")).to eq([ "é muito longa (máximo de 72 bytes)" ])
+      end
+
       it "rejects a blank first name" do
         post_registration(valid_params.merge(first_name: ""))
 

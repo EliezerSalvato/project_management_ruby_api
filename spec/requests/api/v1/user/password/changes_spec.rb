@@ -73,6 +73,18 @@ RSpec.describe "API::V1::User::Password::Changes", type: :request do
         end
       end
 
+      context "with a password longer than 72 bytes" do
+        it "returns 422 and keeps the current password" do
+          long_password = "a" * 73
+
+          update_password(valid_params.merge(password: long_password, password_confirmation: long_password), headers)
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.parsed_body.dig("details", "password")).to eq([ "é muito longa (máximo de 72 bytes)" ])
+          expect(user.reload.authenticate("password123")).to be_truthy
+        end
+      end
+
       context "with a mismatched password confirmation" do
         it "returns 422 unprocessable entity" do
           update_password(valid_params.merge(password_confirmation: "different123"), headers)
