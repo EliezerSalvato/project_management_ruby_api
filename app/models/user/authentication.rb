@@ -25,10 +25,10 @@ class User::Authentication < ApplicationForm
       halt!
     end
 
-    unless user.verified?
-      errors.add(:base, :user_email_is_not_verified)
-      halt!
-    end
+    # unless user.verified?
+    #   errors.add(:base, :user_email_is_not_verified)
+    #   halt!
+    # end
 
     unless user.active?
       errors.add(:base, :user_is_not_active)

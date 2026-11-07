@@ -146,11 +146,12 @@ RSpec.describe "API::V1::User::Authentications", type: :request do
     context "when the user email is not verified" do
       let(:user) { create(:user) }
 
-      it "returns 422 unprocessable entity" do
-        post_authentication(valid_params)
+      it "authenticates the user anyway" do
+        expect { post_authentication(valid_params) }
+          .to change(UserSession, :count).by(1)
 
-        expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "base")).to eq([ "User email is not verified" ])
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body.dig("data", "token")).to be_present
       end
     end
 
