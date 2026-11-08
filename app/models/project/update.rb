@@ -25,10 +25,6 @@ class Project::Update < ApplicationForm
     end
   end
 
-  def date_checked?(field)
-    project.present? && @given_fields.include?(field.to_s) && public_send(field) != project.public_send(field)
-  end
-
   def persist
     changes = (@given_fields - [ "cover_image" ]).index_with { |field| public_send(field) }
     if cover_image.present?

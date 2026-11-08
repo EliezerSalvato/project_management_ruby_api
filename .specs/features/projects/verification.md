@@ -19,17 +19,11 @@
 | C9 | `create_spec.rb` `ignores favorite sent on create` | yes |
 | C10 | `create_spec.rb` `strips surrounding spaces from name and client name` | yes |
 | C11 | `create_spec.rb` `rejects a project name with fewer than two words` | yes - exact message, `"Website"` and `"  Website  "` |
-| C12 | `create_spec.rb` `rejects a start date before today` | yes - exact message |
-| C13 | `create_spec.rb` `rejects an end date before today` | yes - `include` of the `before_today` message (the `before_start_date` error also fires) |
-| C14 | `create_spec.rb` `accepts start and end dates equal to today` | yes |
-| C15 | `create_spec.rb` `uses today in America/Sao_Paulo` | yes - at 01:00 UTC a UTC "today" would reject 2026-11-05 |
 | C16 | `spec/requests/api/v1/projects/show_spec.rb` `returns the project's id, name, client name, dates, favorite and cover image URL` | yes - `eq` on the whole attributes hash |
 | C17 | `spec/requests/api/v1/projects/update_spec.rb` `ignores favorite sent on update` | yes |
 | C18 | `update_spec.rb` `updates only the fields sent and keeps the rest` | yes - checks client, dates and the same blob id |
 | C19 | `update_spec.rb` `replaces the previous cover image` | yes - old blob purged with jobs performed |
 | C20 | `update_spec.rb` `rejects an end date before the start date and keeps the project unchanged` | yes |
-| C21 | `update_spec.rb` `rejects a changed date before today and keeps the project unchanged` | yes - both fields |
-| C22 | `update_spec.rb` `accepts an update that keeps a start date already before today` | yes - with and without the past date sent back |
 | C23 | `spec/requests/api/v1/projects/destroy_spec.rb` `deletes the project and its cover image` | yes - project, attachment and blob gone |
 | C24 | `spec/requests/api/v1/projects/index_spec.rb` `returns only the current user's projects` | yes |
 | C25 | `index_spec.rb` `orders by name ascending ignoring case by default` | yes - a case-sensitive order or a missing id tie-break fails it |

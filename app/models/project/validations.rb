@@ -13,7 +13,6 @@ module Project::Validations
     validates :name, :client_name, :start_date, :end_date, presence: true
     validates :name, :client_name, length: { maximum: 255 }
     validate :name_has_two_words
-    validate :dates_not_before_today
     validate :end_date_not_before_start_date
     validate :cover_image_type_and_size, if: -> { cover_image.present? }
   end
@@ -29,17 +28,6 @@ module Project::Validations
     return if name.blank? || name.split(Project::Text::WHITESPACE).size >= 2
 
     errors.add(:name, :two_words)
-  end
-
-  def dates_not_before_today
-    errors.add(:start_date, :before_today) if before_today?(:start_date)
-    errors.add(:end_date, :before_today) if before_today?(:end_date)
-  end
-
-  def before_today?(field)
-    date = public_send(field)
-
-    date.present? && date_checked?(field) && date < Date.current
   end
 
   def end_date_not_before_start_date

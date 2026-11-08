@@ -84,18 +84,17 @@ Alternatives weighed for the list rules:
 
 - **Purpose**: The field rules both create and update enforce, in one place.
 - **Location**: `app/models/project/validations.rb` (`ActiveSupport::Concern`, included by the two forms)
-- **Rules**: presence of name, client_name, start_date, end_date; length ≤ 255; `name.split.size >= 2` else `errors.add(:name, :two_words)`; `end_date < start_date` → `errors.add(:end_date, :before_start_date)`; a checked date `< Date.current` → `errors.add(<field>, :before_today)`; cover present → content type sniffed with `Marcel::MimeType.for(file)` in `CONTENT_TYPES` else `errors.add(:cover_image, :content_type)`, `file.size > MAX_SIZE` → `errors.add(:cover_image, :file_size)`; a cover that is not an uploaded file → `:content_type`.
-- **Hook**: each form defines `date_checked?(field)`.
+- **Rules**: presence of name, client_name, start_date, end_date; length ≤ 255; `name.split.size >= 2` else `errors.add(:name, :two_words)`; `end_date < start_date` → `errors.add(:end_date, :before_start_date)`; cover present → content type sniffed with `Marcel::MimeType.for(file)` in `CONTENT_TYPES` else `errors.add(:cover_image, :content_type)`, `file.size > MAX_SIZE` → `errors.add(:cover_image, :file_size)`; a cover that is not an uploaded file → `:content_type`.
 
 ### `Project::Creation` (form)
 
 - **Location**: `app/models/project/creation.rb`
-- **Interfaces**: attributes `name`, `client_name`, `start_date :date`, `end_date :date`, `cover_image`; `attr_accessor :user, :project`; `date_checked?` always true; `persist` → `self.project = user.projects.create(...)`, `import_errors` + `halt!` on failure.
+- **Interfaces**: attributes `name`, `client_name`, `start_date :date`, `end_date :date`, `cover_image`; `attr_accessor :user, :project`; `persist` → `self.project = user.projects.create(...)`, `import_errors` + `halt!` on failure.
 
 ### `Project::Update` (form)
 
 - **Location**: `app/models/project/update.rb`
-- **Interfaces**: same attributes; `attr_accessor :project`; records the keys it was given in `initialize`; `before_validation` fills the keys not given from `project`; `date_checked?(field)` is true only when the field was given and differs from the stored value; `persist` → `project.update(given attributes)`, `import_errors` + `halt!` on failure.
+- **Interfaces**: same attributes; `attr_accessor :project`; records the keys it was given in `initialize`; `before_validation` fills the keys not given from `project`; `persist` → `project.update(given attributes)`, `import_errors` + `halt!` on failure.
 
 ### `Project::Search` (form)
 
@@ -167,6 +166,6 @@ end
 | -------- | ------ | --------- |
 | Show, delete, favorite without a form | Controller calls the record | No rule that can fail; mirrors `Session::RevokesController` |
 | `Project::Search` is a form used with `valid?` | Not `save` | No persistence; reuses ActiveModel errors and the 422 envelope |
-| Shared rules in `Project::Validations` | Concern included by both forms | One copy of seven rules; each form supplies `date_checked?` |
+| Shared rules in `Project::Validations` | Concern included by both forms | One copy of six rules |
 | Favorite controller namespace | `API::V1::Project::FavoritesController` | Mirrors `API::V1::User::*`; compact class names keep `Project` resolving to the record |
 | Request specs one file per endpoint | `spec/requests/api/v1/projects/<action>_spec.rb` | One task, one file |

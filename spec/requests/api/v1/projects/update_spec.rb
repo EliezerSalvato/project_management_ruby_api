@@ -146,30 +146,11 @@ RSpec.describe "PATCH /api/v1/projects/:id", type: :request do
       expect(stored_state(project)).to eq(before)
     end
 
-    it "rejects a changed date before today and keeps the project unchanged" do
-      before = stored_state(project)
-
-      %i[start_date end_date].each do |field|
-        update_project(project.id, { field => (Date.current - 1.day).iso8601 }, headers)
-
-        expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", field.to_s)).to include(I18n.t("activemodel.errors.models.project/update.attributes.#{field}.before_today"))
-        expect(stored_state(project)).to eq(before)
-      end
-    end
-
-    it "accepts an update that keeps a start date already before today" do
-      started = create(:project, user:, start_date: Date.current - 10.days, end_date: Date.current + 5.days)
-
-      update_project(started.id, { name: "Renamed Project" }, headers)
+    it "accepts changing the dates to before today" do
+      update_project(project.id, { start_date: (Date.current - 10.days).iso8601, end_date: (Date.current - 1.day).iso8601 }, headers)
 
       expect(response).to have_http_status(:ok)
-      expect(started.reload.name).to eq("Renamed Project")
-
-      update_project(started.id, { name: "Renamed Again", start_date: started.start_date.iso8601 }, headers)
-
-      expect(response).to have_http_status(:ok)
-      expect(started.reload).to have_attributes(name: "Renamed Again", start_date: Date.current - 10.days)
+      expect(project.reload).to have_attributes(start_date: Date.current - 10.days, end_date: Date.current - 1.day)
     end
 
     it "rejects a project name with fewer than two words" do

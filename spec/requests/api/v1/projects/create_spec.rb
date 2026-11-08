@@ -191,43 +191,13 @@ RSpec.describe "POST /api/v1/projects", type: :request do
       expect(user.projects.last).to have_attributes(name: "Website\u00A0Redesign", client_name: "Acme Corp")
     end
 
-    it "rejects a start date before today" do
-      expect { create_project(valid_params.merge(start_date: (Date.current - 1.day).iso8601), headers) }.not_to change(Project, :count)
-
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(response.parsed_body.dig("details", "start_date")).to eq([ I18n.t("activemodel.errors.models.project/creation.attributes.start_date.before_today") ])
-    end
-
-    it "rejects an end date before today" do
-      params = valid_params.merge(start_date: Date.current.iso8601, end_date: (Date.current - 1.day).iso8601)
-
-      expect { create_project(params, headers) }.not_to change(Project, :count)
-
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(response.parsed_body.dig("details", "end_date")).to include(I18n.t("activemodel.errors.models.project/creation.attributes.end_date.before_today"))
-    end
-
-    it "accepts start and end dates equal to today" do
-      params = valid_params.merge(start_date: Date.current.iso8601, end_date: Date.current.iso8601)
+    it "accepts start and end dates before today" do
+      params = valid_params.merge(start_date: (Date.current - 10.days).iso8601, end_date: (Date.current - 1.day).iso8601)
 
       expect { create_project(params, headers) }.to change(Project, :count).by(1)
 
       expect(response).to have_http_status(:created)
-    end
-
-    it "uses today in America/Sao_Paulo" do
-      travel_to Time.utc(2026, 11, 6, 1, 0, 0) do
-        headers = auth_headers_for(user)
-
-        create_project(valid_params.merge(start_date: "2026-11-05", end_date: "2026-11-05"), headers)
-
-        expect(response).to have_http_status(:created)
-
-        create_project(valid_params.merge(start_date: "2026-11-04", end_date: "2026-11-05"), headers)
-
-        expect(response).to have_http_status(:unprocessable_content)
-        expect(response.parsed_body.dig("details", "start_date")).to be_present
-      end
+      expect(user.projects.last).to have_attributes(start_date: Date.current - 10.days, end_date: Date.current - 1.day)
     end
 
     it "answers 422 with the record errors when the record rejects the creation" do

@@ -7,10 +7,6 @@ class Project::Creation < ApplicationForm
 
   private
 
-  def date_checked?(_field)
-    true
-  end
-
   def persist
     attributes = { name:, client_name:, start_date:, end_date: }
     attributes[:cover_image] = cover_image if cover_image.present?

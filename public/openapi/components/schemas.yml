@@ -261,11 +261,10 @@ ProjectRequest:
     start_date:
       type: string
       format: date
-      description: Not before today (America/Sao_Paulo).
     end_date:
       type: string
       format: date
-      description: Not before today (America/Sao_Paulo) and not before `start_date`.
+      description: Not before `start_date`.
     cover_image:
       type: string
       format: binary

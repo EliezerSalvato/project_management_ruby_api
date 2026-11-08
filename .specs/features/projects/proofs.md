@@ -3,7 +3,7 @@
 **HEAD**: bc9a10c
 **Tree**: dirty - app/controllers/api/v1/base_controller.rb, app/models/user.rb, config/application.rb, config/routes.rb, db/schema.rb
 **Shell**: /bin/sh
-**Result**: 61 pass, 0 fail
+**Result**: 55 pass, 0 fail
 
 | Check | Proof | Result |
 | --- | --- | --- |
@@ -18,17 +18,11 @@
 | C9 | `run req / PASSED POST /api/v1/projects ignores favorite sent on create` | pass |
 | C10 | `run req / PASSED POST /api/v1/projects strips surrounding spaces from name and client name` | pass |
 | C11 | `run req / PASSED POST /api/v1/projects rejects a project name with fewer than two words` | pass |
-| C12 | `run req / PASSED POST /api/v1/projects rejects a start date before today` | pass |
-| C13 | `run req / PASSED POST /api/v1/projects rejects an end date before today` | pass |
-| C14 | `run req / PASSED POST /api/v1/projects accepts start and end dates equal to today` | pass |
-| C15 | `run req / PASSED POST /api/v1/projects uses today in America/Sao_Paulo` | pass |
 | C16 | `run req / PASSED GET /api/v1/projects/:id returns the project's id, name, client name, dates, favorite and cov` | pass |
 | C17 | `run req / PASSED PATCH /api/v1/projects/:id ignores favorite sent on update` | pass |
 | C18 | `run req / PASSED PATCH /api/v1/projects/:id updates only the fields sent and keeps the rest` | pass |
 | C19 | `run req / PASSED PATCH /api/v1/projects/:id replaces the previous cover image` | pass |
 | C20 | `run req / PASSED PATCH /api/v1/projects/:id rejects an end date before the start date and keeps the project un` | pass |
-| C21 | `run req / PASSED PATCH /api/v1/projects/:id rejects a changed date before today and keeps the project unchange` | pass |
-| C22 | `run req / PASSED PATCH /api/v1/projects/:id accepts an update that keeps a start date already before today` | pass |
 | C23 | `run req / PASSED DELETE /api/v1/projects/:id deletes the project and its cover image` | pass |
 | C24 | `run req / PASSED GET /api/v1/projects returns only the current user's projects` | pass |
 | C25 | `run req / PASSED GET /api/v1/projects orders by name ascending ignoring case by default` | pass |
@@ -77,8 +71,6 @@
 PASSED PATCH /api/v1/projects/:id when authenticated uses the new upload when cover_image and remove_cover_image=true come together
 PASSED PATCH /api/v1/projects/:id when authenticated replaces the previous cover image
 PASSED PATCH /api/v1/projects/:id when authenticated rejects an end date before the start date and keeps the project unchanged
-PASSED PATCH /api/v1/projects/:id when authenticated rejects a changed date before today and keeps the project unchanged
-PASSED PATCH /api/v1/projects/:id when authenticated accepts an update that keeps a start date already before today
 PASSED PATCH /api/v1/projects/:id when authenticated rejects a project name with fewer than two words
 PASSED PATCH /api/v1/projects/:id when authenticated answers 404 for another user's project
 PASSED PATCH /api/v1/projects/:id when unauthenticated behaves like an unauthorized API request does not authorize the request

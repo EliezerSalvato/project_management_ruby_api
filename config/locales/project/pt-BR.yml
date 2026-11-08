@@ -10,11 +10,8 @@ pt-BR:
               file_size: deve ter no máximo 5 MB
             end_date:
               before_start_date: deve ser igual ou posterior à data de início
-              before_today: não pode ser anterior a hoje
             name:
               two_words: deve ter pelo menos duas palavras
-            start_date:
-              before_today: não pode ser anterior a hoje
         project/search:
           attributes:
             after:
@@ -26,11 +23,8 @@ pt-BR:
               file_size: deve ter no máximo 5 MB
             end_date:
               before_start_date: deve ser igual ou posterior à data de início
-              before_today: não pode ser anterior a hoje
             name:
               two_words: deve ter pelo menos duas palavras
-            start_date:
-              before_today: não pode ser anterior a hoje
   project:
     creation:
       success: Projeto criado com sucesso

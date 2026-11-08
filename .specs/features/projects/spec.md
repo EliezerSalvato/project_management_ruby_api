@@ -39,11 +39,9 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | How the cover image arrives | `multipart/form-data` upload stored with Active Storage; response carries the image URL | user: "Upload via Active Storage, aceitar apenas jpg e png" | y |
 | Accepted cover formats | `image/jpeg` and `image/png` only | user: "aceitar apenas jpg e png" | y |
 | Search shorter than 3 characters | 422 with an error on `search`; an absent or blank `search` lists everything | user: "Retorna 422 com erro" | y |
-| Required fields and date rule | name, client, start date and end date required; end date on or after start date; cover optional; favorite starts `false` and is ignored on create/update | user: "Nome, cliente e datas" | y |
+| Required fields and date rule | name, client, start date and end date required; end date on or after start date; dates may be earlier than today; cover optional; favorite starts `false` and is ignored on create/update | user: "Nome, cliente e datas" | y |
 | Project name word count | At least two words: after stripping, the name splits on whitespace into 2 or more parts (`App Mobile` passes, `App` fails) | user: "nome do projeto ter pelo menos duas palavras" | y |
-| Dates before today | Start date and end date may not be earlier than today; today itself is allowed | user: "os campos de data não podem ser datas menores que a data atual" | y |
-| Date rule on update | On create both dates are checked; on `PATCH` a date is checked only when the request changes its value, so a started project can still be renamed | user: "Só se a data for alterada" | y |
-| Which "today" | Today in `America/Sao_Paulo`, set as the app's `config.time_zone` | user: "America/Sao_Paulo" | y |
+| Which "today" | Today (used by the sort orders) in `America/Sao_Paulo`, set as the app's `config.time_zone` | user: "America/Sao_Paulo" | y |
 | Nearest-deadline sort | `end_date` ascending over all projects, overdue (end date before today) last; `recent_start`: started (newest first), then upcoming (soonest first), then overdue | user: "Data de fim crescente"; later: "deixar para o final os projetos com prazo que já passou" | y |
 | Favorite endpoint shape | `POST /api/v1/projects/:id/favorite` marks, `DELETE` unmarks, both idempotent, both answer 200 with the project | user: "POST/DELETE /favorite" | y |
 | Search comparison | Partial match, case- and accent-insensitive (Postgres `unaccent`) | user: "Sem maiúsc. e sem acento" | y |
@@ -88,12 +86,7 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 15. IF a request to any `/api/v1/projects` endpoint has no valid session token THEN the system SHALL answer 401.
 16. The system SHALL strip surrounding spaces from name and client name before validating and saving them.
 17. IF the project name has fewer than two whitespace-separated words THEN the system SHALL answer 422 with an error on `name`.
-18. IF a create request has a start date earlier than today THEN the system SHALL answer 422 with an error on `start_date`.
-19. IF a create request has an end date earlier than today THEN the system SHALL answer 422 with an error on `end_date`.
-20. WHEN a create request has start date and end date equal to today THEN the system SHALL create the project and answer 201.
-21. IF an update changes the start date or end date to a day earlier than today THEN the system SHALL answer 422 with an error on that field and keep the project unchanged.
-22. WHEN an update does not change a start date or end date that is already earlier than today THEN the system SHALL accept the update and answer 200.
-23. The system SHALL compute today in the `America/Sao_Paulo` time zone.
+23. The system SHALL compute today in the `America/Sao_Paulo` time zone for the date-based sort orders.
 24. WHEN an update sends `remove_cover_image=true` without a new `cover_image` THEN the system SHALL remove the project's cover image, delete the stored file, keep the other fields, and answer 200 with `cover_image_url: null`; on a project without a cover image it SHALL answer 200.
 25. WHEN an update sends both a new `cover_image` and `remove_cover_image=true` THEN the system SHALL store the new image; WHEN `remove_cover_image` is `false`, blank or absent THEN the system SHALL keep the current image; a create request SHALL ignore `remove_cover_image`.
 
@@ -191,11 +184,6 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 | MGMT-15 | P1: Manage - 401 without token | Execute | Verified |
 | MGMT-16 | P1: Manage - strip spaces | Execute | Verified |
 | MGMT-17 | P1: Manage - name has two words | Execute | Verified |
-| MGMT-18 | P1: Manage - start date not before today on create | Execute | Verified |
-| MGMT-19 | P1: Manage - end date not before today on create | Execute | Verified |
-| MGMT-20 | P1: Manage - today is allowed | Execute | Verified |
-| MGMT-21 | P1: Manage - update cannot move a date before today | Execute | Verified |
-| MGMT-22 | P1: Manage - unchanged past date passes on update | Execute | Verified |
 | MGMT-23 | P1: Manage - today in America/Sao_Paulo | Execute | Verified |
 | MGMT-24 | P1: Manage - remove cover image on update | Execute | Verified |
 | MGMT-25 | P1: Manage - remove flag vs upload, false, create | Execute | Verified |
@@ -226,14 +214,15 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 47 total, 47 mapped to tasks, 0 unmapped
+**Coverage:** 42 total, 42 mapped to tasks, 0 unmapped
 
 ---
 
 ## Sources
 
 - User request (2026-11-05) - fields, separate favorite endpoint, three sort orders, search with a 3-character minimum.
-- User adjustment (2026-11-05) - project name of at least two words; dates not earlier than today.
+- User adjustment (2026-11-05) - project name of at least two words.
+- User adjustment (2026-11-08) - removed the rule that dates may not be earlier than today.
 - `.specs/features/projects/context.md` - answers to the gray areas.
 - `AGENTS.md` - Pagy for collections, form objects, serializers, I18n, OpenAPI.
 

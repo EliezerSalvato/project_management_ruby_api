@@ -28,7 +28,7 @@ patch:
   tags: [Projects]
   summary: Update a project
   description: |
-    Updates only the fields sent. A date is checked against today only when the request changes it.
+    Updates only the fields sent.
     A new `cover_image` replaces the previous one. `remove_cover_image=true` removes it; `cover_image_url` becomes null.
   operationId: updateProject
   security:

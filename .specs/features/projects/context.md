@@ -49,9 +49,9 @@ Authenticated CRUD of projects (name, client, start date, end date, cover image,
 
 ### Name and date rules (adjustment)
 
-- user: "ajuste para nome do projeto ter pelo menos duas palavras e os campos de data não podem ser datas menores que a data atual"
-- user: "Só se a data for alterada" - on PATCH a date is checked against today only when the request changes it.
+- user: "ajuste para nome do projeto ter pelo menos duas palavras"
 - user: "America/Sao_Paulo" - today is computed in Brasília time; the app's `config.time_zone` becomes `America/Sao_Paulo`.
+- user (2026-11-08): "remova a validação não pode ser anterior a hoje" - start and end dates may be earlier than today.
 
 ### Declined / Undiscussed Gray Areas → Assumptions
 

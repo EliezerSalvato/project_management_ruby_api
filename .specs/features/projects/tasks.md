@@ -158,11 +158,11 @@ T11 → T12
 **Where**: `app/models/project/creation.rb`
 **Depends on**: Phase 1 (runs after it completes)
 **Reuses**: `User::Registration`, `User::Profile::Update`, `API::V1::User::RegistrationsController`
-**Requirement**: MGMT-01, MGMT-02, MGMT-03, MGMT-04, MGMT-05, MGMT-06, MGMT-07, MGMT-08, MGMT-16, MGMT-17, MGMT-18, MGMT-19, MGMT-20, MGMT-23, MGMT-15, MGMT-24, MGMT-25
+**Requirement**: MGMT-01, MGMT-02, MGMT-03, MGMT-04, MGMT-05, MGMT-06, MGMT-07, MGMT-08, MGMT-16, MGMT-17, MGMT-23, MGMT-15, MGMT-24, MGMT-25
 
 **Done when**:
 
-- [x] `spec/requests/api/v1/projects/create_spec.rb` (`RSpec.describe "POST /api/v1/projects"`) has the tests C1-C15 name, plus `it_behaves_like "an unauthorized API request"`
+- [x] `spec/requests/api/v1/projects/create_spec.rb` (`RSpec.describe "POST /api/v1/projects"`) has the tests C1-C11 name, plus `it_behaves_like "an unauthorized API request"`
 - [x] `error_messages_spec` scans `app/models/project/**` and passes in `en` and `pt-BR`
 - [x] Full gate passes; no test removed
 
@@ -195,15 +195,15 @@ T11 → T12
 
 ### T7: Update a project (PATCH /api/v1/projects/:id) ✅
 
-**What**: `ProjectsController#update` and `Project::Update` (given keys only, fill the rest from the project, `date_checked?` only for changed dates).
+**What**: `ProjectsController#update` and `Project::Update` (given keys only, fill the rest from the project).
 **Where**: `app/models/project/update.rb`
 **Depends on**: T6
 **Reuses**: `Project::Validations`, `User::Profile::Update`
-**Requirement**: MGMT-08, MGMT-10, MGMT-11, MGMT-12, MGMT-21, MGMT-22
+**Requirement**: MGMT-08, MGMT-10, MGMT-11, MGMT-12
 
 **Done when**:
 
-- [x] `spec/requests/api/v1/projects/update_spec.rb` (`RSpec.describe "PATCH /api/v1/projects/:id"`) has C17-C22, a 404 for another user's project, and the 401 shared example
+- [x] `spec/requests/api/v1/projects/update_spec.rb` (`RSpec.describe "PATCH /api/v1/projects/:id"`) has C17-C20, a 404 for another user's project, and the 401 shared example
 - [x] Full gate passes; no test removed
 
 **Tests**: request
@@ -350,18 +350,6 @@ Proof: run req | PASSED POST /api/v1/projects strips surrounding spaces from nam
 **C11** - A one-word name (including `"  App  "`) answers 422 with an error on `name` (MGMT-17, AC 17)
 Proof: run req | PASSED POST /api/v1/projects rejects a project name with fewer than two words
 
-**C12** - Start date yesterday answers 422 with an error on `start_date` (MGMT-18, AC 18)
-Proof: run req | PASSED POST /api/v1/projects rejects a start date before today
-
-**C13** - End date yesterday answers 422 with an error on `end_date` (MGMT-19, AC 19)
-Proof: run req | PASSED POST /api/v1/projects rejects an end date before today
-
-**C14** - Start and end dates equal to today answer 201 (MGMT-20, AC 20)
-Proof: run req | PASSED POST /api/v1/projects accepts start and end dates equal to today
-
-**C15** - At 01:00 UTC on 2026-11-06 (22:00 on 11-05 in Brasília), start date 2026-11-05 is accepted and 2026-11-04 is rejected (MGMT-23, AC 23)
-Proof: run req | PASSED POST /api/v1/projects uses today in America/Sao_Paulo
-
 **C16** - `GET /api/v1/projects/:id` answers 200 with id, name, client_name, start_date, end_date, favorite and cover_image_url (MGMT-09, AC 9)
 Proof: run req | PASSED GET /api/v1/projects/:id returns the project's id, name, client name, dates, favorite and cover image URL
 
@@ -376,12 +364,6 @@ Proof: run req | PASSED PATCH /api/v1/projects/:id replaces the previous cover i
 
 **C20** - `PATCH` with an end date before the start date answers 422 on `end_date`; the stored project is unchanged (MGMT-12, AC 12)
 Proof: run req | PASSED PATCH /api/v1/projects/:id rejects an end date before the start date and keeps the project unchanged
-
-**C21** - `PATCH` moving start or end date to yesterday answers 422 on that field; the stored project is unchanged (MGMT-21, AC 21)
-Proof: run req | PASSED PATCH /api/v1/projects/:id rejects a changed date before today and keeps the project unchanged
-
-**C22** - On a project that started 10 days ago, `PATCH` with a new name (and the same start date sent back) answers 200 (MGMT-22, AC 22)
-Proof: run req | PASSED PATCH /api/v1/projects/:id accepts an update that keeps a start date already before today
 
 **C23** - `DELETE /api/v1/projects/:id` answers 200; the project and its attachment are gone (MGMT-13, AC 13)
 Proof: run req | PASSED DELETE /api/v1/projects/:id deletes the project and its cover image

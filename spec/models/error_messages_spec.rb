@@ -46,7 +46,7 @@ RSpec.describe "Domain error messages" do
     expect(error_usages).to include(
       [ User::Password::Reset::SendInstructions, :email, :not_found ],
       [ Project::Search, :after, :not_found ],
-      [ Project::Creation, :start_date, :before_today ],
+      [ Project::Creation, :end_date, :before_start_date ],
       [ Project::Update, :cover_image, :file_size ]
     )
   end

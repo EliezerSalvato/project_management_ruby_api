@@ -28,7 +28,7 @@ patch:
   tags: [Projetos]
   summary: Atualizar um projeto
   description: |
-    Atualiza apenas os campos enviados. Uma data só é comparada com hoje quando a requisição a altera.
+    Atualiza apenas os campos enviados.
     Uma nova `cover_image` substitui a anterior. `remove_cover_image=true` a remove; `cover_image_url` passa a ser null.
   operationId: updateProject
   security:
