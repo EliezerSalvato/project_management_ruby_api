@@ -9,6 +9,10 @@ AuthenticationRequest:
       type: string
       format: password
       minLength: 8
+    remember_me:
+      type: boolean
+      default: false
+      description: Mantém o refresh token por 30 dias (cookie persistente). Padrão false (1 dia, cookie de sessão do navegador).
 
 RegistrationRequest:
   type: object
@@ -31,10 +35,11 @@ RegistrationRequest:
 
 RefreshSessionRequest:
   type: object
-  required: [refresh_token]
   properties:
-    refresh_token:
-      type: string
+    remember_me:
+      type: boolean
+      default: false
+      description: Mantém o refresh token rotacionado por 30 dias (cookie persistente). Padrão false (1 dia). O refresh token em si vem do cookie `refresh_token`.
 
 ProfileUpdateRequest:
   type: object
@@ -110,14 +115,11 @@ PasswordResetUpdateRequest:
 
 TokensData:
   type: object
-  required: [token, refresh_token, user]
+  required: [token, user]
   properties:
     token:
       type: string
       description: Token de sessão (Bearer). Expira em 15 minutos.
-    refresh_token:
-      type: string
-      description: Refresh token. Expira em 30 dias. Usado para obter um novo token de sessão.
     user:
       $ref: "#/UserResource"
 

@@ -9,6 +9,10 @@ AuthenticationRequest:
       type: string
       format: password
       minLength: 8
+    remember_me:
+      type: boolean
+      default: false
+      description: Keep the refresh token for 30 days (persistent cookie). Defaults to false (1 day, browser-session cookie).
 
 RegistrationRequest:
   type: object
@@ -31,10 +35,11 @@ RegistrationRequest:
 
 RefreshSessionRequest:
   type: object
-  required: [refresh_token]
   properties:
-    refresh_token:
-      type: string
+    remember_me:
+      type: boolean
+      default: false
+      description: Keep the rotated refresh token for 30 days (persistent cookie). Defaults to false (1 day). The refresh token itself comes from the `refresh_token` cookie.
 
 ProfileUpdateRequest:
   type: object
@@ -110,14 +115,11 @@ PasswordResetUpdateRequest:
 
 TokensData:
   type: object
-  required: [token, refresh_token, user]
+  required: [token, user]
   properties:
     token:
       type: string
       description: Session token (Bearer). Expires in 15 minutes.
-    refresh_token:
-      type: string
-      description: Refresh token. Expires in 30 days. Used to obtain a new session token.
     user:
       $ref: "#/UserResource"
 

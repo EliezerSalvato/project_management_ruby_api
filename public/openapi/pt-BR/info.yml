@@ -13,9 +13,9 @@ description: |
 
   1. **Cadastro** — `POST /api/v1/user/registrations`
   2. **Confirmar e-mail** — `POST /api/v1/user/email/confirmations` (token recebido por e-mail)
-  3. **Login** — `POST /api/v1/user/authentications` → recebe `token` + `refresh_token`
+  3. **Login** — `POST /api/v1/user/authentications` → recebe o `token` no corpo; o `refresh_token` é gravado em um cookie httpOnly criptografado
   4. **Chamar endpoints protegidos** com `Authorization: Bearer <token>`
-  5. **Renovar** — quando o token de sessão expirar, `PATCH /api/v1/user/session/refreshes` com o `refresh_token`
+  5. **Renovar** — quando o token de sessão expirar, `PATCH /api/v1/user/session/refreshes` (lê o cookie `refresh_token`)
   6. **Revogar** — `DELETE /api/v1/user/session/revokes` para invalidar todas as sessões ativas
 
   ### Validade dos tokens
@@ -23,7 +23,8 @@ description: |
   | Token | Validade |
   |-------|----------|
   | Sessão (`token`) | 15 minutos |
-  | Refresh (`refresh_token`) | 30 dias |
+  | Refresh (`refresh_token`, `remember_me: true`) | 30 dias (cookie persistente) |
+  | Refresh (`refresh_token`, sem `remember_me`) | 1 dia (cookie de sessão do navegador) |
   | Confirmação de e-mail | 24 horas |
   | Redefinição de senha | 15 minutos |
 

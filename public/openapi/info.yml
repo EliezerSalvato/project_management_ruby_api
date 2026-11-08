@@ -13,9 +13,9 @@ description: |
 
   1. **Register** — `POST /api/v1/user/registrations`
   2. **Confirm email** — `POST /api/v1/user/email/confirmations` (token from email)
-  3. **Sign in** — `POST /api/v1/user/authentications` → receives `token` + `refresh_token`
+  3. **Sign in** — `POST /api/v1/user/authentications` → receives `token` in the body; `refresh_token` is set as an encrypted httpOnly cookie
   4. **Call protected endpoints** with `Authorization: Bearer <token>`
-  5. **Refresh** — when the session token expires, `PATCH /api/v1/user/session/refreshes` with `refresh_token`
+  5. **Refresh** — when the session token expires, `PATCH /api/v1/user/session/refreshes` (reads the `refresh_token` cookie)
   6. **Revoke** — `DELETE /api/v1/user/session/revokes` to invalidate all active sessions
 
   ### Token lifetimes
@@ -23,7 +23,8 @@ description: |
   | Token | Lifetime |
   |-------|----------|
   | Session (`token`) | 15 minutes |
-  | Refresh (`refresh_token`) | 30 days |
+  | Refresh (`refresh_token`, `remember_me: true`) | 30 days (persistent cookie) |
+  | Refresh (`refresh_token`, without `remember_me`) | 1 day (browser-session cookie) |
   | Email confirmation | 24 hours |
   | Password reset | 15 minutes |
 
