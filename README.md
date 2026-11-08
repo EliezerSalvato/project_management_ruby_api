@@ -186,6 +186,37 @@ Authorization: Bearer <token>
 5. Refresh when expired — `PATCH /api/v1/user/session/refreshes` (reads the `refresh_token` cookie)
 6. Revoke sessions — `DELETE /api/v1/user/session/revokes` (Bearer required)
 
+Request bodies are flat JSON (not nested under `user`). The full schemas are in the [API docs](http://localhost:3000/docs). Example with `curl`, keeping the refresh cookie in a cookie jar:
+
+```bash
+# 1. Register
+curl -X POST http://localhost:3000/api/v1/user/registrations \
+  -H "Content-Type: application/json" \
+  -d '{"first_name":"John","last_name":"Doe","email":"john.doe@example.com","password":"password123","password_confirmation":"password123"}'
+
+# 2. Confirm email (copy the token from the email in Mailpit)
+curl -X POST http://localhost:3000/api/v1/user/email/confirmations \
+  -H "Content-Type: application/json" \
+  -d '{"token":"<token-from-email>"}'
+
+# 3. Sign in: the session token comes in data.token, the refresh token goes to cookies.txt
+curl -X POST http://localhost:3000/api/v1/user/authentications \
+  -c cookies.txt \
+  -H "Content-Type: application/json" \
+  -d '{"email":"john.doe@example.com","password":"password123","remember_me":true}'
+
+# 4. Call a protected endpoint
+curl http://localhost:3000/api/v1/projects -H "Authorization: Bearer <token>"
+
+# 5. Refresh: reads and rotates the cookie; send remember_me again to keep the 30-day lifetime
+curl -X PATCH http://localhost:3000/api/v1/user/session/refreshes \
+  -b cookies.txt -c cookies.txt \
+  -H "Content-Type: application/json" \
+  -d '{"remember_me":true}'
+```
+
+To skip steps 1–2, sign in with the seeded user (`user@example.com` / `12345678`).
+
 | Token | Lifetime |
 |-------|----------|
 | Session (`token`) | 15 minutes |
