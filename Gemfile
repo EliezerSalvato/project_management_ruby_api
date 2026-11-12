@@ -26,7 +26,7 @@ end
 
 group :test do
   gem "simplecov", "~> 1.3", require: false
-  gem "rspec-rails", "~> 8.0"
+  gem "rspec-rails", "~> 8.1"
 end
 
 group :development, :test do
