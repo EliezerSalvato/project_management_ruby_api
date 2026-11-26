@@ -5,7 +5,7 @@ ruby "3.4.12"
 # Core
 gem "rails", "~> 8.1.4"
 gem "pg", "~> 1.7"
-gem "puma", "~> 8.0"
+gem "puma", "~> 8.1"
 gem "bootsnap", "~> 1.26", require: false
 
 # API
